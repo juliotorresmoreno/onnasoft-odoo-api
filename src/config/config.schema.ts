@@ -150,6 +150,52 @@ class EnvironmentVariables {
     message: 'STRIPE_WEBHOOK_SECRET must be at least 32 characters long',
   })
   STRIPE_WEBHOOK_SECRET: string;
+
+  @IsString()
+  @IsNotEmpty({ message: 'WEBSITE_URL is required' })
+  @Matches(/^(https?:\/\/)?([\w.-]+)(:\d+)?(\/[\w.-]*)*\/?$/, {
+    message: 'WEBSITE_URL must be a valid URL',
+  })
+  WEBSITE_URL: string;
+
+  @IsString()
+  @IsNotEmpty({ message: 'PRIVACY_URL is required' })
+  @Matches(/^(https?:\/\/)?([\w.-]+)(:\d+)?(\/[\w.-]*)*\/?$/, {
+    message: 'PRIVACY_URL must be a valid URL',
+  })
+  PRIVACY_URL: string;
+
+  @IsString()
+  @IsNotEmpty({ message: 'TERMS_URL is required' })
+  @Matches(/^(https?:\/\/)?([\w.-]+)(:\d+)?(\/[\w.-]*)*\/?$/, {
+    message: 'TERMS_URL must be a valid URL',
+  })
+  TERMS_URL: string;
+
+  @IsString()
+  @IsNotEmpty({ message: 'SUPPORT_EMAIL is required' })
+  @Matches(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/, {
+    message: 'SUPPORT_EMAIL must be a valid email address',
+  })
+  SUPPORT_EMAIL: string;
+
+  @IsString()
+  @IsNotEmpty({ message: 'SUPPORT_PHONE is required' })
+  SUPPORT_PHONE: string;
+
+  @IsString()
+  @IsNotEmpty({ message: 'SUPPORT_CONTACT is required' })
+  @Matches(/^[a-zA-Z0-9\s,.'-]+$/, {
+    message: 'SUPPORT_CONTACT must be a valid contact name',
+  })
+  SUPPORT_CONTACT: string;
+
+  @IsString()
+  @IsNotEmpty({ message: 'SUPPORT_ADDRESS is required' })
+  @Matches(/^[a-zA-Z0-9\s,.'-]+$/, {
+    message: 'SUPPORT_ADDRESS must be a valid address',
+  })
+  SUPPORT_ADDRESS: string;
 }
 
 export function validate(config: Record<string, unknown>) {

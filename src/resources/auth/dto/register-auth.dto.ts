@@ -1,15 +1,52 @@
+import { Language, languages } from '@/utils/language';
 import { ApiProperty } from '@nestjs/swagger';
-import { IsEmail, IsString, Length, Matches, MinLength } from 'class-validator';
+import {
+  IsBoolean,
+  IsEmail,
+  IsIn,
+  IsOptional,
+  IsString,
+  Length,
+  Matches,
+  MinLength,
+} from 'class-validator';
 
 export class RegisterAuthDto {
   @ApiProperty()
   @IsString()
   @MinLength(2)
-  name: string;
+  firstName: string;
+
+  @ApiProperty()
+  @IsString()
+  @MinLength(2)
+  lastName: string;
 
   @ApiProperty()
   @IsEmail()
   email: string;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsString()
+  phone?: string;
+
+  @ApiProperty()
+  @IsString()
+  @MinLength(2)
+  companyName: string;
+
+  @ApiProperty()
+  @IsString()
+  companySize: string;
+
+  @ApiProperty()
+  @IsString()
+  industry: string;
+
+  @ApiProperty()
+  @IsString()
+  position: string;
 
   @ApiProperty()
   @IsString()
@@ -22,4 +59,21 @@ export class RegisterAuthDto {
     },
   )
   password: string;
+
+  @ApiProperty({
+    description: 'Preferred language',
+    enum: languages,
+    example: 'en',
+  })
+  @IsString()
+  @IsIn(languages)
+  language: Language;
+
+  @ApiProperty()
+  @IsBoolean()
+  acceptTerms: boolean;
+
+  @ApiProperty()
+  @IsBoolean()
+  acceptMarketing: boolean;
 }

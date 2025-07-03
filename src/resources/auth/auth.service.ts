@@ -34,19 +34,21 @@ export class AuthService {
     private readonly jwtService: JwtService,
   ) {}
 
-  async register(registerDto: RegisterAuthDto) {
+  async register(payload: RegisterAuthDto) {
     try {
       const existingUser = await this.usersService.findOne({
-        where: { email: registerDto.email },
+        where: { email: payload.email },
       });
 
       if (existingUser) {
         throw new ConflictException('Email already registered');
       }
 
-      const hashedPassword = await hashPassword(registerDto.password);
+      const hashedPassword = await hashPassword(payload.password);
       const newUser = await this.usersService.create({
-        ...registerDto,
+        ...payload,
+        role: Role.User,
+        isEmailVerified: false,
         password: hashedPassword,
       });
 
@@ -67,11 +69,12 @@ export class AuthService {
         }),
       );
 
-      await this.emailService.sendVerificationEmail(
-        newUser.email,
-        newUser.name,
-        passwordResetToken,
-      );
+      await this.emailService.sendVerificationEmail({
+        to: newUser.email,
+        name: `${newUser.firstName} ${newUser.lastName}`,
+        token: passwordResetToken,
+        language: newUser.language || 'en',
+      });
 
       await this.notificationsService.create(
         new Notification({
@@ -108,7 +111,7 @@ export class AuthService {
     try {
       const user = await this.usersService.findOne({
         where: { email },
-        select: ['id', 'email', 'name'],
+        select: ['id', 'email', 'firstName', 'lastName', 'language'],
       });
 
       if (!user) {
@@ -121,10 +124,11 @@ export class AuthService {
         passwordResetTokenExpiresAt: new Date(Date.now() + 3600000),
       });
 
-      await this.emailService.sendPasswordResetEmail(
-        user.email,
-        passwordResetToken,
-      );
+      await this.emailService.sendPasswordResetEmail({
+        to: user.email,
+        token: passwordResetToken,
+        language: user.language || 'en',
+      });
 
       await this.notificationsService.create(
         new Notification({
@@ -137,8 +141,6 @@ export class AuthService {
         }),
       );
 
-      // Here you would typically send a reset password email
-      // For simplicity, we just return the user data
       return {
         message: 'Password reset link sent to your email',
         user,
@@ -163,7 +165,14 @@ export class AuthService {
     try {
       const user = await this.usersService.findOne({
         where: { email },
-        select: ['id', 'email', 'password', 'name', 'isEmailVerified'],
+        select: [
+          'id',
+          'email',
+          'password',
+          'firstName',
+          'lastName',
+          'isEmailVerified',
+        ],
       });
 
       if (!user) {
@@ -193,7 +202,7 @@ export class AuthService {
       return {
         user: await this.usersService.findOne({
           where: { email },
-          select: ['id', 'email', 'name'],
+          select: ['id', 'email', 'firstName', 'lastName', 'language'],
         }),
         message: 'Login successful',
       };
@@ -215,7 +224,14 @@ export class AuthService {
     try {
       const user = await this.usersService.findOne({
         where: { verificationToken: token },
-        select: ['id', 'email', 'name', 'verificationTokenExpiresAt'],
+        select: [
+          'id',
+          'email',
+          'firstName',
+          'lastName',
+          'language',
+          'verificationTokenExpiresAt',
+        ],
       });
 
       if (!user) {
@@ -247,7 +263,10 @@ export class AuthService {
         }),
       );
 
-      await this.emailService.sendWelcomeEmail(user.email);
+      await this.emailService.sendWelcomeEmail({
+        to: user.email,
+        language: user.language || 'en',
+      });
     } catch (error) {
       this.logger.error(
         `Error during email verification with token ${token}: ${error.message}`,
@@ -263,7 +282,14 @@ export class AuthService {
     try {
       const user = await this.usersService.findOne({
         where: { email },
-        select: ['id', 'email', 'name', 'verificationToken'],
+        select: [
+          'id',
+          'email',
+          'firstName',
+          'lastName',
+          'language',
+          'verificationToken',
+        ],
       });
 
       if (!user) {
@@ -280,11 +306,12 @@ export class AuthService {
         verificationTokenExpiresAt: new Date(Date.now() + 3600000 * 24),
       });
 
-      await this.emailService.sendVerificationEmail(
-        user.email,
-        user.name,
-        verificationToken,
-      );
+      await this.emailService.sendVerificationEmail({
+        to: user.email,
+        name: `${user.firstName} ${user.lastName}`,
+        token: verificationToken,
+        language: user.language || 'en',
+      });
 
       await this.notificationsService.create(
         new Notification({
@@ -323,7 +350,14 @@ export class AuthService {
     try {
       const user = await this.usersService.findOne({
         where: { passwordResetToken: token },
-        select: ['id', 'email', 'name', 'passwordResetTokenExpiresAt'],
+        select: [
+          'id',
+          'email',
+          'firstName',
+          'lastName',
+          'language',
+          'passwordResetTokenExpiresAt',
+        ],
       });
 
       if (!user) {
@@ -428,18 +462,20 @@ export class AuthService {
         throw new UnauthorizedException('Invalid Google token payload');
       }
 
-      let user = await this.usersService.findOne({
+      const user = await this.usersService.findOne({
         where: { email: decoded.email },
-        select: ['id', 'email', 'name', 'isEmailVerified'],
+        select: [
+          'id',
+          'email',
+          'firstName',
+          'lastName',
+          'language',
+          'isEmailVerified',
+        ],
       });
 
       if (!user) {
-        user = await this.usersService.create({
-          email: decoded.email,
-          name: decoded.name,
-          password: await hashPassword(generateRandomToken()),
-          isEmailVerified: true,
-        });
+        throw new UnauthorizedException('User not found');
       } else if (!user.isEmailVerified) {
         throw new ConflictException('Email not verified');
       }

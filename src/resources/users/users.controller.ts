@@ -30,8 +30,12 @@ export class UsersController {
   @Post()
   @ApiOperation({ summary: 'Create a new user' })
   @ApiResponse({ status: 201, description: 'User created', type: User })
-  create(@Body() createUserDto: CreateUserDto) {
-    return this.usersService.create(createUserDto);
+  create(@Body() payload: CreateUserDto) {
+    return this.usersService.create({
+      ...payload,
+      isEmailVerified: true,
+      role: Role.User,
+    });
   }
 
   @SetMetadata('roles', [Role.User, Role.Admin])

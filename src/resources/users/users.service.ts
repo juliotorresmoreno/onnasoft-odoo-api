@@ -3,6 +3,7 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from '@/entities/User';
 import { FindOneOptions, Repository, IsNull, FindManyOptions } from 'typeorm';
+import { Role } from '@/types/role';
 
 @Injectable()
 export class UsersService {
@@ -11,7 +12,7 @@ export class UsersService {
     private readonly userRepository: Repository<User>,
   ) {}
 
-  create(payload: CreateUserDto & { isEmailVerified?: boolean }) {
+  create(payload: CreateUserDto & { isEmailVerified?: boolean; role: Role }) {
     return this.userRepository.save({
       ...payload,
       isEmailVerified: payload.isEmailVerified || false,
@@ -23,7 +24,7 @@ export class UsersService {
   findAll(options?: FindManyOptions<User>) {
     let buildOptions: FindManyOptions<User> | undefined = {
       where: { deletedAt: IsNull() },
-      select: ['id', 'name', 'email'],
+      select: ['id', 'firstName', 'lastName', 'email'],
       order: { createdAt: 'DESC' },
       take: 100,
     };

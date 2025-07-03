@@ -10,6 +10,15 @@ export default registerAs('config', (): Configuration => {
     port: parseInt(process.env.PORT ?? '3200', 10),
     secret: process.env.SECRET_KEY!,
     baseUrl: process.env.BASE_URL!,
+
+    websiteUrl: process.env.WEBSITE_URL || '',
+    privacyUrl: process.env.PRIVACY_URL || '',
+    termsUrl: process.env.TERMS_URL || '',
+    supportEmail: process.env.SUPPORT_EMAIL || '',
+    supportPhone: process.env.SUPPORT_PHONE || '',
+    supportContact: process.env.SUPPORT_CONTACT || '',
+    supportAddress: process.env.SUPPORT_ADDRESS || '',
+
     defaultLimit: parseInt(process.env.DEFAULT_LIMIT ?? '10', 10),
     database: {
       type: process.env.DB_DRIVER as any,

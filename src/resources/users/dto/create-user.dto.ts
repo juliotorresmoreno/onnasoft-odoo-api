@@ -1,15 +1,54 @@
-import { IsEmail, IsString, Matches, MinLength } from 'class-validator';
+import { ApiProperty } from '@nestjs/swagger';
+import {
+  IsBoolean,
+  IsEmail,
+  IsOptional,
+  IsString,
+  Length,
+  Matches,
+  MinLength,
+} from 'class-validator';
 
 export class CreateUserDto {
+  @ApiProperty()
   @IsString()
   @MinLength(2)
-  name: string;
+  firstName: string;
 
+  @ApiProperty()
+  @IsString()
+  @MinLength(2)
+  lastName: string;
+
+  @ApiProperty()
   @IsEmail()
   email: string;
 
+  @ApiProperty({ required: false })
+  @IsOptional()
   @IsString()
-  @MinLength(8)
+  phone?: string;
+
+  @ApiProperty()
+  @IsString()
+  @MinLength(2)
+  companyName: string;
+
+  @ApiProperty()
+  @IsString()
+  companySize: string;
+
+  @ApiProperty()
+  @IsString()
+  industry: string;
+
+  @ApiProperty()
+  @IsString()
+  position: string;
+
+  @ApiProperty()
+  @IsString()
+  @Length(8, 255)
   @Matches(
     /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&.#])[A-Za-z\d@$!%*?&.#]{8,}$/,
     {
@@ -18,4 +57,12 @@ export class CreateUserDto {
     },
   )
   password: string;
+
+  @ApiProperty()
+  @IsBoolean()
+  acceptTerms: boolean;
+
+  @ApiProperty()
+  @IsBoolean()
+  acceptMarketing: boolean;
 }

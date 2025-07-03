@@ -57,8 +57,8 @@ export class AuthController {
     description: 'Validation error',
   })
   @ApiBody({ type: RegisterAuthDto })
-  async register(@Body(new ValidationPipe()) registerDto: RegisterAuthDto) {
-    return this.authService.register(registerDto);
+  async register(@Body(new ValidationPipe()) payload: RegisterAuthDto) {
+    return this.authService.register(payload);
   }
 
   @Public()

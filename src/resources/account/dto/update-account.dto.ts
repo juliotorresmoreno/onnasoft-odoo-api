@@ -1,6 +1,7 @@
 import { IsOptional, IsIn, IsString, Length } from 'class-validator';
 import * as moment from 'moment-timezone';
 import { ApiPropertyOptional } from '@nestjs/swagger';
+import { Language, languages } from '@/utils/language';
 
 export class UpdateAccountDto {
   @ApiPropertyOptional({
@@ -14,12 +15,12 @@ export class UpdateAccountDto {
 
   @ApiPropertyOptional({
     description: 'Preferred language',
-    enum: ['es', 'en', 'fr', 'ja', 'zh'],
+    enum: languages,
     example: 'en',
   })
   @IsOptional()
-  @IsIn(['es', 'en', 'fr', 'ja', 'zh'])
-  language?: string;
+  @IsIn(languages)
+  language?: Language;
 
   @ApiPropertyOptional({
     description: 'Timezone (IANA format)',

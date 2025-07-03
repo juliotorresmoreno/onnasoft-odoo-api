@@ -22,7 +22,8 @@ export class AccountService {
       select: [
         'id',
         'email',
-        'name',
+        'firstName',
+        'lastName',
         'language',
         'timezone',
         'newsletter',

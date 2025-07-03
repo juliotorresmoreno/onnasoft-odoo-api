@@ -12,6 +12,13 @@ export interface Configuration {
   redis: RedisConfiguration;
   baseUrl: string;
   defaultLimit: number;
+  websiteUrl: string;
+  privacyUrl: string;
+  termsUrl: string;
+  supportEmail: string;
+  supportPhone: string;
+  supportContact: string;
+  supportAddress: string;
   email: {
     strategy: 'console' | 'resend';
     resendApiKey?: string;

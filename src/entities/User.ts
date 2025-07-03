@@ -1,3 +1,4 @@
+import { Language, languages } from '@/utils/language';
 import {
   Entity,
   PrimaryGeneratedColumn,
@@ -13,7 +14,25 @@ export class User {
   id: string;
 
   @Column({ length: 255 })
-  name: string;
+  firstName: string;
+
+  @Column({ length: 255 })
+  lastName: string;
+
+  @Column({ nullable: true, type: 'varchar', length: 20 })
+  phone: string | null;
+
+  @Column({ length: 255 })
+  companyName: string;
+
+  @Column({ length: 50 })
+  companySize: string;
+
+  @Column({ length: 100 })
+  industry: string;
+
+  @Column({ length: 100 })
+  position: string;
 
   @Column({ unique: true })
   email: string;
@@ -38,16 +57,16 @@ export class User {
 
   @Column({
     type: 'enum',
-    enum: ['es', 'en', 'fr', 'ja', 'zh'],
+    enum: languages,
     default: 'en',
   })
-  language: string;
+  language: Language;
 
   @Column({ type: 'varchar', length: 100, default: 'UTC' })
   timezone: string;
 
   @Column({ default: false })
-  newsletter?: boolean;
+  newsletter: boolean;
 
   @Column({
     type: 'enum',
