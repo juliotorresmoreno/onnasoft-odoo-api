@@ -21,6 +21,7 @@ import { Configuration } from '@/types/configuration';
 import { Role } from '@/types/role';
 import { NotificationsService } from '../notifications/notifications.service';
 import { Notification } from '@/entities/Notification';
+import { translations } from './translations';
 
 @Injectable()
 export class AuthService {
@@ -35,13 +36,14 @@ export class AuthService {
   ) {}
 
   async register(payload: RegisterAuthDto) {
+    const t = translations[payload.language] || translations.en;
     try {
       const existingUser = await this.usersService.findOne({
         where: { email: payload.email },
       });
 
       if (existingUser) {
-        throw new ConflictException('Email already registered');
+        throw new ConflictException(t.register.conflict);
       }
 
       const hashedPassword = await hashPassword(payload.password);
@@ -88,8 +90,7 @@ export class AuthService {
       );
 
       return {
-        message:
-          'Registration successful. Please check your email to verify your account.',
+        message: t.register.success,
       };
     } catch (error) {
       this.logger.error(
@@ -101,13 +102,12 @@ export class AuthService {
         throw error;
       }
 
-      throw new InternalServerErrorException(
-        'Registration failed. Please try again later.',
-      );
+      throw new InternalServerErrorException(t.register.error);
     }
   }
 
   async forgotPassword(email: string) {
+    let t = translations.en;
     try {
       const user = await this.usersService.findOne({
         where: { email },
@@ -115,8 +115,10 @@ export class AuthService {
       });
 
       if (!user) {
-        throw new UnauthorizedException('User not found');
+        throw new UnauthorizedException(t.forgotPassword.notFound);
       }
+
+      t = translations[user.language] || translations.en;
 
       const passwordResetToken = generateRandomToken();
       await this.usersService.update(user.id, {
@@ -142,7 +144,7 @@ export class AuthService {
       );
 
       return {
-        message: 'Password reset link sent to your email',
+        message: t.forgotPassword.success,
         user,
       };
     } catch (error) {
@@ -152,16 +154,15 @@ export class AuthService {
       );
 
       if (error instanceof UnauthorizedException) {
-        throw error;
+        throw new UnauthorizedException(t.forgotPassword.notFound);
       }
 
-      throw new InternalServerErrorException(
-        'Failed to process forgot password request. Please try again later.',
-      );
+      throw new InternalServerErrorException(t.forgotPassword.error);
     }
   }
 
   async validateUser(email: string, password: string) {
+    let t = translations.en;
     try {
       const user = await this.usersService.findOne({
         where: { email },
@@ -172,20 +173,23 @@ export class AuthService {
           'firstName',
           'lastName',
           'isEmailVerified',
+          'language',
         ],
       });
 
       if (!user) {
-        return null;
+        throw new UnauthorizedException(t.login.notFound);
       }
+
+      t = translations[user.language] || translations.en;
 
       const isPasswordValid = await comparePassword(password, user.password);
       if (!isPasswordValid) {
-        return null;
+        throw new UnauthorizedException(t.login.invalidCredentials);
       }
 
       if (!user.isEmailVerified) {
-        throw new UnauthorizedException('Email not verified');
+        throw new UnauthorizedException(t.login.emailNotVerified);
       }
 
       await this.notificationsService.create(
@@ -204,7 +208,7 @@ export class AuthService {
           where: { email },
           select: ['id', 'email', 'firstName', 'lastName', 'language'],
         }),
-        message: 'Login successful',
+        message: t.login.success,
       };
     } catch (error) {
       this.logger.error(
@@ -213,6 +217,13 @@ export class AuthService {
       );
 
       if (error instanceof UnauthorizedException) {
+        if (error.message.includes('not found')) {
+          throw new UnauthorizedException(t.login.notFound);
+        } else if (error.message.includes('credentials')) {
+          throw new UnauthorizedException(t.login.invalidCredentials);
+        } else if (error.message.includes('verified')) {
+          throw new UnauthorizedException(t.login.emailNotVerified);
+        }
         throw error;
       }
     }
@@ -221,6 +232,7 @@ export class AuthService {
   }
 
   async verifyEmail(token: string) {
+    let t = translations.en;
     try {
       const user = await this.usersService.findOne({
         where: { verificationToken: token },
@@ -235,15 +247,17 @@ export class AuthService {
       });
 
       if (!user) {
-        throw new UnauthorizedException('Invalid verification token');
+        throw new UnauthorizedException(t.verifyEmail.invalidToken);
       }
 
+      t = translations[user.language] || translations.en;
+
       if (!user.verificationTokenExpiresAt) {
-        throw new UnauthorizedException('Verification token not found');
+        throw new UnauthorizedException(t.verifyEmail.tokenNotFound);
       }
 
       if (user.verificationTokenExpiresAt < new Date()) {
-        throw new UnauthorizedException('Verification token expired');
+        throw new UnauthorizedException(t.verifyEmail.tokenExpired);
       }
 
       await this.usersService.update(user.id, {
@@ -273,12 +287,21 @@ export class AuthService {
       );
 
       if (error instanceof UnauthorizedException) {
+        if (error.message.includes('invalid')) {
+          throw new UnauthorizedException(t.verifyEmail.invalidToken);
+        } else if (error.message.includes('expired')) {
+          throw new UnauthorizedException(t.verifyEmail.tokenExpired);
+        } else if (error.message.includes('not found')) {
+          throw new UnauthorizedException(t.verifyEmail.tokenNotFound);
+        }
         throw error;
       }
     }
   }
 
   async resendVerification(email: string) {
+    let t = translations.en;
+
     try {
       const user = await this.usersService.findOne({
         where: { email },
@@ -289,15 +312,18 @@ export class AuthService {
           'lastName',
           'language',
           'verificationToken',
+          'isEmailVerified',
         ],
       });
 
       if (!user) {
-        throw new UnauthorizedException('User not found');
+        throw new UnauthorizedException(t.resendVerification.notFound);
       }
 
+      t = translations[user.language] || translations.en;
+
       if (user.isEmailVerified) {
-        throw new ConflictException('Email already verified');
+        throw new ConflictException(t.resendVerification.alreadyVerified);
       }
 
       const verificationToken = generateRandomToken();
@@ -325,7 +351,7 @@ export class AuthService {
       );
 
       return {
-        message: 'Verification email resent successfully',
+        message: t.resendVerification.success,
       };
     } catch (error) {
       this.logger.error(
@@ -333,20 +359,18 @@ export class AuthService {
         error.stack,
       );
 
-      if (
-        error instanceof UnauthorizedException ||
-        error instanceof ConflictException
-      ) {
-        throw error;
+      if (error instanceof UnauthorizedException) {
+        throw new UnauthorizedException(t.resendVerification.notFound);
+      } else if (error instanceof ConflictException) {
+        throw new ConflictException(t.resendVerification.alreadyVerified);
       }
 
-      throw new InternalServerErrorException(
-        'Failed to resend verification email. Please try again later.',
-      );
+      throw new InternalServerErrorException(t.resendVerification.error);
     }
   }
 
   async resetPassword(token: string, newPassword: string) {
+    let t = translations.en;
     try {
       const user = await this.usersService.findOne({
         where: { passwordResetToken: token },
@@ -361,15 +385,17 @@ export class AuthService {
       });
 
       if (!user) {
-        throw new UnauthorizedException('Invalid reset token');
+        throw new UnauthorizedException(t.resetPassword.invalidToken);
       }
 
+      t = translations[user.language] || translations.en;
+
       if (!user.passwordResetTokenExpiresAt) {
-        throw new UnauthorizedException('Reset token not found');
+        throw new UnauthorizedException(t.resetPassword.tokenNotFound);
       }
 
       if (user.passwordResetTokenExpiresAt < new Date()) {
-        throw new UnauthorizedException('Reset token expired');
+        throw new UnauthorizedException(t.resetPassword.tokenExpired);
       }
 
       const hashedPassword = await hashPassword(newPassword);
@@ -394,7 +420,7 @@ export class AuthService {
       );
 
       return {
-        message: 'Password successfully reset',
+        message: t.resetPassword.success,
       };
     } catch (error) {
       this.logger.error(
@@ -403,24 +429,31 @@ export class AuthService {
       );
 
       if (error instanceof UnauthorizedException) {
+        if (error.message.includes('invalid')) {
+          throw new UnauthorizedException(t.resetPassword.invalidToken);
+        } else if (error.message.includes('expired')) {
+          throw new UnauthorizedException(t.resetPassword.tokenExpired);
+        } else if (error.message.includes('not found')) {
+          throw new UnauthorizedException(t.resetPassword.tokenNotFound);
+        }
         throw error;
       }
 
       throw new InternalServerErrorException(
-        'Failed to reset password. Please try again later.',
+        translations.en.resetPassword.error,
       );
     }
   }
 
-  login(user: User) {
+  login(user: User, rememberMe: boolean = false) {
     const payload = { email: user.email, sub: user.id, role: Role.User };
 
     const access_token = this.jwtService.sign(payload, {
-      expiresIn: '1h',
+      expiresIn: rememberMe ? '30d' : '1h',
     });
 
     const refresh_token = this.jwtService.sign(payload, {
-      expiresIn: '30d',
+      expiresIn: rememberMe ? '90d' : '30d',
     });
 
     return { access_token, refresh_token };
@@ -450,16 +483,18 @@ export class AuthService {
         `Token verification failed: ${error.message}`,
         error.stack,
       );
-      throw new UnauthorizedException('Invalid or expired token');
+      throw new UnauthorizedException(translations.en.token.invalid);
     }
   }
 
   async loginOAuth(token: string) {
+    const t = translations.en;
+
     try {
       const decoded: OauthIdTokenPayload = await this.verifyToken(token);
 
       if (!decoded || !decoded.email) {
-        throw new UnauthorizedException('Invalid Google token payload');
+        throw new UnauthorizedException(t.oauth.invalidToken);
       }
 
       const user = await this.usersService.findOne({
@@ -475,9 +510,9 @@ export class AuthService {
       });
 
       if (!user) {
-        throw new UnauthorizedException('User not found');
+        throw new UnauthorizedException(t.oauth.notFound);
       } else if (!user.isEmailVerified) {
-        throw new ConflictException('Email not verified');
+        throw new ConflictException(t.oauth.emailNotVerified);
       }
 
       await this.notificationsService.create(
@@ -498,16 +533,13 @@ export class AuthService {
         error.stack,
       );
 
-      if (
-        error instanceof UnauthorizedException ||
-        error instanceof ConflictException
-      ) {
-        throw error;
+      if (error instanceof UnauthorizedException) {
+        throw new UnauthorizedException(t.oauth.notFound);
+      } else if (error instanceof ConflictException) {
+        throw new ConflictException(t.oauth.emailNotVerified);
       }
 
-      throw new InternalServerErrorException(
-        'OAuth login failed. Please try again later.',
-      );
+      throw new InternalServerErrorException(t.oauth.error);
     }
   }
 }
