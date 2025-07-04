@@ -22,8 +22,7 @@ export class CompanyService {
   }
 
   create(payload: CreateCompanyDto) {
-    const company = this.companyRepository.create(payload);
-    return this.companyRepository.save(company);
+    return this.companyRepository.save(payload);
   }
 
   async findAll(options?: FindManyOptions<Company>) {

@@ -24,7 +24,7 @@ export function pagination<T>({
     page,
     pagingCounter: skip + 1,
     prevPage: hasPrevPage ? page - 1 : null,
-    totalDocs: count,
+    total: count,
     totalPages: Math.ceil(count / take),
   };
 }
