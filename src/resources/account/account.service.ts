@@ -9,30 +9,55 @@ import { UpdatePasswordDto } from './dto/update-password.dto';
 import { comparePassword, hashPassword } from '@/utils/secure';
 import { NotificationsService } from '../notifications/notifications.service';
 import { Notification } from '@/entities/Notification';
+import { FindManyOptions, FindOneOptions } from 'typeorm';
+import { User } from '@/entities/User';
+import { ConfigService } from '@nestjs/config';
+import { Configuration } from '@/types/configuration';
 
 @Injectable()
 export class AccountService {
+  private readonly defaultLimit;
+
   constructor(
+    private readonly configService: ConfigService,
     private readonly notificationsService: NotificationsService,
     private readonly usersService: UsersService,
-  ) {}
+  ) {
+    this.defaultLimit =
+      this.configService.get<Configuration>('config')?.defaultLimit ?? 10;
+  }
 
-  findOne(id: string) {
-    return this.usersService.findOne({
-      select: [
-        'id',
-        'email',
-        'firstName',
-        'lastName',
-        'language',
-        'timezone',
-        'newsletter',
-        'plan',
-        'createdAt',
-        'updatedAt',
-      ],
-      where: { id },
-    });
+  findOne(params: string): Promise<User | null>;
+  findOne(params: FindOneOptions<User>): Promise<User | null>;
+  findOne(params: string | FindOneOptions<User>): Promise<User | null> {
+    if (typeof params === 'string') {
+      return this.usersService.findOne({
+        select: [
+          'id',
+          'email',
+          'firstName',
+          'lastName',
+          'language',
+          'timezone',
+          'newsletter',
+          'plan',
+          'createdAt',
+          'updatedAt',
+        ],
+        where: { id: params },
+      });
+    }
+    return this.usersService.findOne(params);
+  }
+
+  async findAll(options?: FindManyOptions<User>) {
+    const buildOptions: typeof options = { ...options };
+    if (buildOptions) {
+      if (!buildOptions.take) buildOptions.take = this.defaultLimit;
+      if (!buildOptions.order) buildOptions.order = { createdAt: 'DESC' };
+    }
+
+    return this.usersService.findAll(buildOptions);
   }
 
   async update(id: string, payload: UpdateAccountDto) {

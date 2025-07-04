@@ -16,13 +16,12 @@ export function pagination<T>({
   const hasPrevPage = skip > 0;
 
   return {
-    docs: data,
+    data,
     hasNextPage,
     hasPrevPage,
     limit: take,
     nextPage: hasNextPage ? page + 1 : null,
     page,
-    pagingCounter: skip + 1,
     prevPage: hasPrevPage ? page - 1 : null,
     total: count,
     totalPages: Math.ceil(count / take),

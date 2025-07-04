@@ -47,7 +47,7 @@ export class CompanyService {
     });
   }
 
-  update(id: number, payload: UpdateCompanyDto) {
+  update(id: string, payload: UpdateCompanyDto) {
     return this.companyRepository.update(id, {
       name: payload.name,
       size: payload.size,

@@ -28,7 +28,9 @@ export class AccountController {
       throw new UnauthorizedException('User not authenticated');
     }
 
-    return this.accountService.findOne(req.user.id);
+    return this.accountService.findOne({
+      where: { email: req.user.email },
+    });
   }
 
   @SetMetadata('roles', [Role.User, Role.Admin])

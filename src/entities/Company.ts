@@ -24,6 +24,33 @@ export class Company {
   @Column({ length: 100 })
   position: string;
 
+  @Column({ type: 'varchar', length: 100, nullable: true })
+  country: string | null;
+
+  @Column({ type: 'varchar', length: 100, nullable: true })
+  city: string;
+
+  @Column({ type: 'varchar', length: 255, nullable: true })
+  address: string;
+
+  @Column({ type: 'varchar', length: 20, nullable: true })
+  postalCode: string;
+
+  @Column({ type: 'varchar', length: 20, nullable: true })
+  phone: string | null;
+
+  @Column({ type: 'varchar', length: 100, nullable: true })
+  website: string;
+
+  @Column({ type: 'varchar', length: 100, nullable: true })
+  email: string;
+
+  @Column({ type: 'varchar', length: 100, nullable: true })
+  logo: string | null;
+
+  @Column({ type: 'text', nullable: true })
+  description: string;
+
   @CreateDateColumn()
   createdAt: Date;
 

@@ -2,9 +2,11 @@ import { Injectable } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from '@/entities/User';
-import { FindOneOptions, Repository, IsNull, FindManyOptions } from 'typeorm';
+import { FindOneOptions, Repository, FindManyOptions } from 'typeorm';
 import { Role } from '@/types/role';
 import { CompanyService } from '../company/company.service';
+import { ConfigService } from '@nestjs/config';
+import { pagination } from '@/utils/pagination';
 
 type CreateUserPayload = CreateUserDto & {
   role?: Role;
@@ -13,7 +15,10 @@ type CreateUserPayload = CreateUserDto & {
 
 @Injectable()
 export class UsersService {
+  private readonly defaultLimit = 10;
+
   constructor(
+    private readonly configService: ConfigService,
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
     private readonly companyService: CompanyService,
@@ -32,7 +37,7 @@ export class UsersService {
 
     const user = this.userRepository.create({
       ...userData,
-      company_id: company.id,
+      companyId: company.id,
       company,
       isEmailVerified: payload.isEmailVerified || false,
       createdAt: new Date(),
@@ -42,21 +47,20 @@ export class UsersService {
     return this.userRepository.save(user);
   }
 
-  findAll(options?: FindManyOptions<User>) {
-    let buildOptions: FindManyOptions<User> | undefined = {
-      where: { deletedAt: IsNull() },
-      select: ['id', 'firstName', 'lastName', 'email'],
-      order: { createdAt: 'DESC' },
-      take: 100,
-    };
-    if (options) {
-      buildOptions = {
-        ...buildOptions,
-        ...options,
-        where: { ...options.where, deletedAt: IsNull() },
-      };
+  async findAll(options?: FindManyOptions<User>) {
+    const buildOptions: typeof options = { ...options };
+    if (buildOptions) {
+      if (!buildOptions.take) buildOptions.take = this.defaultLimit;
+      if (!buildOptions.order) buildOptions.order = { createdAt: 'DESC' };
     }
-    return this.userRepository.find(buildOptions);
+    const [data, count] = await this.userRepository.findAndCount(buildOptions);
+
+    return pagination({
+      data,
+      count,
+      take: buildOptions.take || this.defaultLimit,
+      skip: buildOptions.skip || 0,
+    });
   }
 
   findOne(options: FindOneOptions<User>) {
