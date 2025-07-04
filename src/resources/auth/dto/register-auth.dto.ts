@@ -1,4 +1,4 @@
-import { Language, languages } from '@/utils/language';
+import { defaultLanguage, Language, languages } from '@/utils/language';
 import { ApiProperty } from '@nestjs/swagger';
 import {
   IsBoolean,
@@ -38,14 +38,26 @@ export class RegisterAuthDto {
 
   @ApiProperty()
   @IsString()
+  @IsIn(['1-10', '11-50', '51-200', '201-500', '500+'])
   companySize: string;
 
   @ApiProperty()
   @IsString()
+  @IsIn([
+    'manufacturing',
+    'retail',
+    'services',
+    'technology',
+    'healthcare',
+    'education',
+    'finance',
+    'other',
+  ])
   industry: string;
 
   @ApiProperty()
   @IsString()
+  @IsIn(['ceo', 'cto', 'manager', 'it', 'operations', 'finance', 'other'])
   position: string;
 
   @ApiProperty()
@@ -63,7 +75,7 @@ export class RegisterAuthDto {
   @ApiProperty({
     description: 'Preferred language',
     enum: languages,
-    example: 'en',
+    example: defaultLanguage,
   })
   @IsString()
   @IsIn(languages)

@@ -23,6 +23,8 @@ import { NotificationsModule } from './resources/notifications/notifications.mod
 import { StripeModule } from './resources/stripe/stripe.module';
 import { User } from './entities/User';
 import { Notification } from './entities/Notification';
+import { Company } from './entities/Company';
+import { CompanyModule } from './resources/company/company.module';
 
 const envPath = `.env.${process.env.NODE_ENV ?? 'development'}`;
 const envFileExists = fs.existsSync(envPath);
@@ -41,7 +43,7 @@ const envFileExists = fs.existsSync(envPath);
         const configuration = configService.get('config') as Configuration;
         return {
           ...configuration.database,
-          entities: [User, Notification],
+          entities: [User, Company, Notification],
           synchronize: true,
         } as TypeOrmModuleOptions;
       },
@@ -73,6 +75,7 @@ const envFileExists = fs.existsSync(envPath);
     AccountModule,
     NotificationsModule,
     StripeModule,
+    CompanyModule,
   ],
   controllers: [AppController],
   providers: [AppService, EmailService],

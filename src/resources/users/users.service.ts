@@ -4,21 +4,42 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { User } from '@/entities/User';
 import { FindOneOptions, Repository, IsNull, FindManyOptions } from 'typeorm';
 import { Role } from '@/types/role';
+import { CompanyService } from '../company/company.service';
+
+type CreateUserPayload = CreateUserDto & {
+  role?: Role;
+  isEmailVerified?: boolean;
+};
 
 @Injectable()
 export class UsersService {
   constructor(
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
+    private readonly companyService: CompanyService,
   ) {}
 
-  create(payload: CreateUserDto & { isEmailVerified?: boolean; role: Role }) {
-    return this.userRepository.save({
-      ...payload,
+  async create(payload: CreateUserPayload) {
+    const { companyName, companySize, industry, position, ...userData } =
+      payload;
+
+    const company = await this.companyService.create({
+      name: companyName,
+      size: companySize,
+      industry: industry,
+      position,
+    });
+
+    const user = this.userRepository.create({
+      ...userData,
+      company_id: company.id,
+      company,
       isEmailVerified: payload.isEmailVerified || false,
       createdAt: new Date(),
       updatedAt: new Date(),
     });
+
+    return this.userRepository.save(user);
   }
 
   findAll(options?: FindManyOptions<User>) {

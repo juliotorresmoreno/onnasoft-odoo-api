@@ -6,7 +6,10 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   DeleteDateColumn,
+  OneToOne,
+  JoinColumn,
 } from 'typeorm';
+import { Company } from './Company';
 
 @Entity('users')
 export class User {
@@ -22,17 +25,12 @@ export class User {
   @Column({ nullable: true, type: 'varchar', length: 20 })
   phone: string | null;
 
-  @Column({ length: 255 })
-  companyName: string;
+  @Column({ type: 'varchar' })
+  company_id: string;
 
-  @Column({ length: 50 })
-  companySize: string;
-
-  @Column({ length: 100 })
-  industry: string;
-
-  @Column({ length: 100 })
-  position: string;
+  @OneToOne(() => Company, { onDelete: 'SET NULL', onUpdate: 'CASCADE' })
+  @JoinColumn({ name: 'company_id' })
+  company?: Company;
 
   @Column({ unique: true })
   email: string;
