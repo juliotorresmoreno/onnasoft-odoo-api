@@ -25,6 +25,7 @@ import { User } from './entities/User';
 import { Notification } from './entities/Notification';
 import { Company } from './entities/Company';
 import { CompanyModule } from './resources/company/company.module';
+import { MediaModule } from './resources/media/media.module';
 
 const envPath = `.env.${process.env.NODE_ENV ?? 'development'}`;
 const envFileExists = fs.existsSync(envPath);
@@ -76,6 +77,7 @@ const envFileExists = fs.existsSync(envPath);
     NotificationsModule,
     StripeModule,
     CompanyModule,
+    MediaModule,
   ],
   controllers: [AppController],
   providers: [AppService, EmailService],

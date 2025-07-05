@@ -33,6 +33,9 @@ export class Company {
   @Column({ type: 'varchar', length: 255, nullable: true })
   address: string;
 
+  @Column({ type: 'varchar', length: 50, nullable: true })
+  taxId: string | null;
+
   @Column({ type: 'varchar', length: 20, nullable: true })
   postalCode: string;
 
@@ -46,7 +49,7 @@ export class Company {
   email: string;
 
   @Column({ type: 'varchar', length: 100, nullable: true })
-  logo: string | null;
+  logoUrl: string | null;
 
   @Column({ type: 'text', nullable: true })
   description: string;

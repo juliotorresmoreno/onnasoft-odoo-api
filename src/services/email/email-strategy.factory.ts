@@ -3,8 +3,10 @@ import { EmailStrategy } from './strategies/email-strategy.interface';
 import { ConsoleEmailStrategy } from './strategies/console.strategy';
 import { ResendEmailStrategy } from './strategies/resend.strategy';
 
+type EmailStrategyType = 'console' | 'resend';
+
 export function createEmailStrategy(
-  strategy: string = 'console',
+  strategy: EmailStrategyType = 'console',
   options?: { resendApiKey?: string; fromEmail?: string },
 ): EmailStrategy {
   switch (strategy) {

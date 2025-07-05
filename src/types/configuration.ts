@@ -29,4 +29,13 @@ export interface Configuration {
     secretKey: string;
     webhookSecret: string;
   };
+
+  minio: {
+    user: string;
+    password: string;
+    endpoint: string;
+    port: number;
+    bucket: string;
+    useSSL: boolean;
+  };
 }

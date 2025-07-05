@@ -51,5 +51,14 @@ export default registerAs('config', (): Configuration => {
       secretKey: process.env.STRIPE_SECRET_KEY!,
       webhookSecret: process.env.STRIPE_WEBHOOK_SECRET!,
     },
+
+    minio: {
+      user: process.env.MINIO_USER || '',
+      password: process.env.MINIO_PASSWORD || '',
+      endpoint: process.env.MINIO_ENDPOINT || 'localhost',
+      port: parseInt(process.env.MINIO_PORT ?? '9000', 10),
+      bucket: process.env.MINIO_BUCKET || 'odoo',
+      useSSL: process.env.MINIO_USE_SSL === 'true',
+    },
   };
 });

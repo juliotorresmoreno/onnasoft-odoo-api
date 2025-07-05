@@ -10,6 +10,7 @@ import {
   JoinColumn,
 } from 'typeorm';
 import { Company } from './Company';
+import { Role } from '@/types/role';
 
 @Entity('users')
 export class User {
@@ -72,6 +73,13 @@ export class User {
     default: 'free',
   })
   plan: string;
+
+  @Column({
+    type: 'enum',
+    enum: [Role.User, Role.Admin],
+    default: Role.User,
+  })
+  role: Role;
 
   @CreateDateColumn()
   createdAt: Date;

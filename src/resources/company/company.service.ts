@@ -47,11 +47,12 @@ export class CompanyService {
     });
   }
 
-  update(id: string, payload: UpdateCompanyDto) {
-    return this.companyRepository.update(id, {
-      name: payload.name,
-      size: payload.size,
-      industry: payload.industry,
+  async update(id: string, payload: UpdateCompanyDto) {
+    delete payload.logoUrl;
+    await this.companyRepository.update(id, payload);
+
+    return this.companyRepository.findOne({
+      where: { id },
     });
   }
 

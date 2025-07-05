@@ -445,8 +445,17 @@ export class AuthService {
     }
   }
 
-  login(user: User, rememberMe: boolean = false) {
-    const payload = { email: user.email, sub: user.id, role: Role.User };
+  async login(user: User, rememberMe: boolean = false) {
+    const updateUser = await this.usersService.findOne({
+      where: { email: user.email },
+      select: ['role'],
+    });
+
+    const payload = {
+      email: user.email,
+      sub: user.id,
+      role: updateUser?.role || Role.User,
+    };
 
     const access_token = this.jwtService.sign(payload, {
       expiresIn: rememberMe ? '30d' : '1h',

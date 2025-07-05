@@ -36,6 +36,7 @@
     "dotenv": "^16.5.0",
     "handlebars": "^4.7.8",
     "jwk-to-pem": "^2.0.7",
+    "minio": "^8.0.5",
     "moment-timezone": "^0.6.0",
     "passport": "^0.7.0",
     "passport-jwt": "^4.0.1",
@@ -92,5 +93,6 @@
     ],
     "coverageDirectory": "../coverage",
     "testEnvironment": "node"
-  }
+  },
+  "packageManager": "yarn@1.22.22+sha1.ac34549e6aa8e7ead463a7407e1c7390f61a6610"
 }

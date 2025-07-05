@@ -9,6 +9,7 @@ import {
   Query,
   SetMetadata,
   Request,
+  NotFoundException,
 } from '@nestjs/common';
 import { CompanyService } from './company.service';
 import { CreateCompanyDto } from './dto/create-company.dto';
@@ -16,7 +17,7 @@ import { UpdateCompanyDto } from './dto/update-company.dto';
 import { buildFindManyOptions, QueryParams } from '@/types/query';
 import { Company } from '@/entities/Company';
 import { Role } from '@/types/role';
-import { Public } from '@/utils/secure';
+import { IS_PUBLIC_KEY, Public } from '@/utils/secure';
 import { User } from '@/entities/User';
 import { UsersService } from '../users/users.service';
 
@@ -40,16 +41,59 @@ export class CompanyController {
     return this.companyService.findAll(options);
   }
 
-  @Public()
+  @SetMetadata('roles', [Role.User, Role.Admin, IS_PUBLIC_KEY])
   @Get(':id')
-  findOne(@Param('id') id: string) {
+  async findOne(
+    @Request() req: Express.Request & { user: User },
+    @Param('id') id: string,
+  ) {
+    if (id === 'me') {
+      if (!req.user || !req.user.email) {
+        throw new NotFoundException('User not found');
+      }
+
+      const user = await this.userService.findOne({
+        where: { email: req.user.email },
+        select: ['companyId'],
+      });
+
+      if (!user || !user.companyId) {
+        throw new NotFoundException('Company not found for the user');
+      }
+
+      return this.companyService.findOne(user.companyId);
+    }
+
     return this.companyService.findOne(id);
   }
 
-  @SetMetadata('roles', [Role.Admin])
+  @SetMetadata('roles', [Role.User, Role.Admin])
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateCompanyDto: UpdateCompanyDto) {
-    return this.companyService.update(id, updateCompanyDto);
+  async update(
+    @Request() req: Express.Request & { user: User },
+    @Body() payload: UpdateCompanyDto,
+    @Param('id') id: string,
+  ) {
+    if (id === 'me') {
+      const user = await this.userService.findOne({
+        where: { email: req.user.email },
+        select: ['companyId'],
+      });
+
+      if (!user?.companyId) {
+        throw new NotFoundException('Company not found for the user');
+      }
+
+      return this.companyService.update(user.companyId, payload);
+    }
+
+    if (req.user.role !== Role.Admin) {
+      throw new NotFoundException(
+        'You do not have permission to update this company',
+      );
+    }
+
+    return this.companyService.update(id, payload);
   }
 
   @SetMetadata('roles', [Role.User, Role.Admin])
@@ -64,7 +108,7 @@ export class CompanyController {
     });
 
     if (!user || !user.companyId) {
-      throw new Error('Company not found for the user');
+      throw new NotFoundException('Company not found for the user');
     }
 
     return this.companyService.update(user.companyId, payload);

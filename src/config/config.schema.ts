@@ -196,6 +196,44 @@ class EnvironmentVariables {
     message: 'SUPPORT_ADDRESS must be a valid address',
   })
   SUPPORT_ADDRESS: string;
+
+  // MinIO Configuration
+  @IsString()
+  @IsNotEmpty({ message: 'MINIO_USER is required' })
+  MINIO_USER: string;
+
+  @IsString()
+  @IsNotEmpty({ message: 'MINIO_PASSWORD is required' })
+  @MinLength(8, {
+    message: 'MINIO_PASSWORD must be at least 8 characters long',
+  })
+  MINIO_PASSWORD: string;
+
+  @IsString()
+  @IsNotEmpty({ message: 'MINIO_ENDPOINT is required' })
+  @Matches(
+    /^(([a-zA-Z0-9]|[a-zA-Z0-9-]*[a-zA-Z0-9])\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9-]*[A-Za-z0-9])$/,
+    {
+      message: 'MINIO_ENDPOINT must be a valid hostname or IP address',
+    },
+  )
+  MINIO_ENDPOINT: string;
+
+  @IsNumberString()
+  @IsPort({ message: 'MINIO_PORT must be a valid port number (1-65535)' })
+  MINIO_PORT: string;
+
+  @IsString()
+  @IsNotEmpty({ message: 'MINIO_BUCKET is required' })
+  @Matches(/^[a-zA-Z0-9-_]+$/, {
+    message:
+      'MINIO_BUCKET must be a valid bucket name (alphanumeric, dashes, and underscores only)',
+  })
+  MINIO_BUCKET: string;
+
+  @IsBooleanString()
+  @IsNotEmpty({ message: 'MINIO_USE_SSL is required (true/false)' })
+  MINIO_USE_SSL: string;
 }
 
 export function validate(config: Record<string, unknown>) {

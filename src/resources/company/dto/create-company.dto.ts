@@ -57,7 +57,7 @@ export class CreateCompanyDto {
   @ApiProperty({ required: false })
   @IsOptional()
   @IsUrl()
-  logo?: string;
+  logoUrl?: string;
 
   @ApiProperty({ required: false })
   @IsOptional()
