@@ -48,7 +48,7 @@ export class Company {
   @Column({ type: 'varchar', length: 100, nullable: true })
   email: string;
 
-  @Column({ type: 'varchar', length: 100, nullable: true })
+  @Column({ type: 'varchar', length: 500, nullable: true })
   logoUrl: string | null;
 
   @Column({ type: 'text', nullable: true })

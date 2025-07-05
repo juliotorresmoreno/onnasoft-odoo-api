@@ -11,6 +11,7 @@ export interface Configuration {
   database: TypeOrmModuleOptions;
   redis: RedisConfiguration;
   baseUrl: string;
+  mediaUrl: string;
   defaultLimit: number;
   websiteUrl: string;
   privacyUrl: string;

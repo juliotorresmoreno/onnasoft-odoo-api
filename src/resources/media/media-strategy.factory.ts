@@ -16,6 +16,7 @@ export function createMediaStrategy(
       config.minio?.bucket ?? '',
       config.minio?.user ?? '',
       config.minio?.password ?? '',
+      config.mediaUrl,
     );
   }
 

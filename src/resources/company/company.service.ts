@@ -7,6 +7,9 @@ import { Configuration } from '@/types/configuration';
 import { CreateCompanyDto } from './dto/create-company.dto';
 import { UpdateCompanyDto } from './dto/update-company.dto';
 import { pagination } from '@/utils/pagination';
+import { MediaService } from '../media/media.service';
+import { generateRandomToken } from '@/utils/secure';
+import * as sharp from 'sharp';
 
 @Injectable()
 export class CompanyService {
@@ -16,6 +19,7 @@ export class CompanyService {
     private readonly configService: ConfigService,
     @InjectRepository(Company)
     private readonly companyRepository: Repository<Company>,
+    private readonly mediaService: MediaService,
   ) {
     this.defaultLimit =
       this.configService.get<Configuration>('config')?.defaultLimit ?? 10;
@@ -48,7 +52,21 @@ export class CompanyService {
   }
 
   async update(id: string, payload: UpdateCompanyDto) {
-    delete payload.logoUrl;
+    const logoUrl = payload.logoUrl;
+    if (logoUrl && logoUrl.startsWith('data:')) {
+      const base64Data = logoUrl.split(',')[1];
+      const buffer = Buffer.from(base64Data, 'base64');
+      const webpBuffer = await sharp(buffer)
+        .resize({ width: 300 })
+        .toFormat('webp')
+        .toBuffer();
+      const fileName = await this.mediaService.uploadFile(
+        webpBuffer,
+        generateRandomToken() + '.webp',
+      );
+      payload.logoUrl = await this.mediaService.getFileUrl(fileName);
+    }
+
     await this.companyRepository.update(id, payload);
 
     return this.companyRepository.findOne({

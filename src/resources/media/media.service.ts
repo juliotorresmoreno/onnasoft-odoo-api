@@ -1,26 +1,30 @@
-import { Injectable } from '@nestjs/common';
-import { CreateMediaDto } from './dto/create-media.dto';
-import { UpdateMediaDto } from './dto/update-media.dto';
+import { Inject, Injectable } from '@nestjs/common';
+import { MediaStrategy } from './strategies/media-strategy.interface';
+import { ConfigService } from '@nestjs/config';
+import { Configuration } from '@/types/configuration';
+import { createMediaStrategy } from './media-strategy.factory';
 
 @Injectable()
 export class MediaService {
-  create(createMediaDto: CreateMediaDto) {
-    return 'This action adds a new media';
+  private readonly strategy: MediaStrategy;
+
+  constructor(@Inject() private readonly configService: ConfigService) {
+    const config = this.configService.get('config') as Configuration;
+    this.strategy = createMediaStrategy(config, 'minio');
   }
 
-  findAll() {
-    return `This action returns all media`;
+  async uploadFile(
+    file: Buffer<ArrayBufferLike>,
+    fileName: string,
+  ): Promise<string> {
+    return this.strategy.uploadFile(file, fileName);
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} media`;
+  async deleteFile(fileName: string): Promise<void> {
+    return this.strategy.deleteFile(fileName);
   }
 
-  update(id: number, updateMediaDto: UpdateMediaDto) {
-    return `This action updates a #${id} media`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} media`;
+  async getFileUrl(fileName: string): Promise<string> {
+    return this.strategy.getFileUrl(fileName);
   }
 }

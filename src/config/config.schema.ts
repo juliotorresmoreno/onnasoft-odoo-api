@@ -39,6 +39,13 @@ class EnvironmentVariables {
   BASE_URL: string;
 
   @IsString()
+  @IsNotEmpty({ message: 'MEDIA_URL is required' })
+  @Matches(/^(https?:\/\/)?([\w.-]+)(:\d+)?(\/[\w.-]*)*\/?$/, {
+    message: 'MEDIA_URL must be a valid URL',
+  })
+  MEDIA_URL: string;
+
+  @IsString()
   @IsNotEmpty({ message: 'RESEND_API_KEY is required' })
   @MinLength(32, {
     message: 'RESEND_API_KEY must be at least 32 characters long',

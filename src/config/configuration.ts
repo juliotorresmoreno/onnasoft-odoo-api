@@ -10,6 +10,7 @@ export default registerAs('config', (): Configuration => {
     port: parseInt(process.env.PORT ?? '3200', 10),
     secret: process.env.SECRET_KEY!,
     baseUrl: process.env.BASE_URL!,
+    mediaUrl: process.env.MEDIA_URL || '',
 
     websiteUrl: process.env.WEBSITE_URL || '',
     privacyUrl: process.env.PRIVACY_URL || '',
