@@ -28,6 +28,8 @@ import { CompanyModule } from './resources/company/company.module';
 import { MediaModule } from './resources/media/media.module';
 import { Plan } from './entities/Plan';
 import { SeedModule } from './services/seed/seed.module';
+import { PlansModule } from './resources/plans/plans.module';
+import { PlanTranslation } from './entities/PlanTranslation';
 
 const envPath = `.env.${process.env.NODE_ENV ?? 'development'}`;
 const envFileExists = fs.existsSync(envPath);
@@ -46,7 +48,7 @@ const envFileExists = fs.existsSync(envPath);
         const configuration = configService.get('config') as Configuration;
         return {
           ...configuration.database,
-          entities: [User, Company, Notification, Plan],
+          entities: [User, Company, Notification, Plan, PlanTranslation],
           synchronize: true,
         } as TypeOrmModuleOptions;
       },
@@ -81,6 +83,7 @@ const envFileExists = fs.existsSync(envPath);
     CompanyModule,
     MediaModule,
     SeedModule,
+    PlansModule,
   ],
   controllers: [AppController],
   providers: [AppService, EmailService],

@@ -14,7 +14,7 @@ import {
 import { CompanyService } from './company.service';
 import { CreateCompanyDto } from './dto/create-company.dto';
 import { UpdateCompanyDto } from './dto/update-company.dto';
-import { buildFindManyOptions, QueryParams } from '@/types/query';
+import { buildFindManyOptions, QueryParams } from '@/utils/query';
 import { Company } from '@/entities/Company';
 import { Role } from '@/types/role';
 import { IS_PUBLIC_KEY, Public } from '@/utils/secure';

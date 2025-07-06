@@ -61,5 +61,35 @@ export default registerAs('config', (): Configuration => {
       bucket: process.env.MINIO_BUCKET || 'odoo',
       useSSL: process.env.MINIO_USE_SSL === 'true',
     },
+
+    plans: {
+      starter: {
+        id: process.env.PLAN_STARTER_ID || 'starter',
+        anualId: process.env.PLAN_STARTER_ANUAL_ID || 'starter_anual',
+        name: process.env.PLAN_STARTER_NAME || 'Starter Plan',
+        price: parseFloat(process.env.PLAN_STARTER_PRICE || '0'),
+        anualPrice: parseFloat(process.env.PLAN_STARTER_ANUAL_PRICE || '0'),
+        interval:
+          (process.env.PLAN_STARTER_INTERVAL as 'month' | 'year') || 'month',
+      },
+      business: {
+        id: process.env.PLAN_BUSINESS_ID || 'business',
+        anualId: process.env.PLAN_BUSINESS_ANUAL_ID || 'business_anual',
+        name: process.env.PLAN_BUSINESS_NAME || 'Business Plan',
+        price: parseFloat(process.env.PLAN_BUSINESS_PRICE || '0'),
+        anualPrice: parseFloat(process.env.PLAN_BUSINESS_ANUAL_PRICE || '0'),
+        interval:
+          (process.env.PLAN_BUSINESS_INTERVAL as 'month' | 'year') || 'month',
+      },
+      enterprise: {
+        id: process.env.PLAN_ENTERPRISE_ID || 'enterprise',
+        anualId: process.env.PLAN_ENTERPRISE_ANUAL_ID || 'enterprise_anual',
+        name: process.env.PLAN_ENTERPRISE_NAME || 'Enterprise Plan',
+        price: parseFloat(process.env.PLAN_ENTERPRISE_PRICE || '0'),
+        anualPrice: parseFloat(process.env.PLAN_ENTERPRISE_ANUAL_PRICE || '0'),
+        interval:
+          (process.env.PLAN_ENTERPRISE_INTERVAL as 'month' | 'year') || 'month',
+      },
+    },
   };
 });

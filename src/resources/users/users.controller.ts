@@ -7,6 +7,7 @@ import {
   Param,
   Delete,
   SetMetadata,
+  Query,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -19,6 +20,7 @@ import {
   ApiBearerAuth,
 } from '@nestjs/swagger';
 import { User } from '@/entities/User';
+import { buildFindManyOptions, QueryParams } from '@/utils/query';
 
 @ApiTags('Users')
 @ApiBearerAuth()
@@ -42,8 +44,10 @@ export class UsersController {
   @Get()
   @ApiOperation({ summary: 'Get all users' })
   @ApiResponse({ status: 200, description: 'List of users', type: [User] })
-  findAll() {
-    return this.usersService.findAll();
+  @Get()
+  async findAll(@Query() query: QueryParams<User>) {
+    const options = buildFindManyOptions(query);
+    return this.usersService.findAll(options);
   }
 
   @SetMetadata('roles', [Role.User, Role.Admin])

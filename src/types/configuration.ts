@@ -39,4 +39,31 @@ export interface Configuration {
     bucket: string;
     useSSL: boolean;
   };
+
+  plans: {
+    starter: {
+      id: string;
+      anualId: string;
+      name: string;
+      price: number;
+      anualPrice: number;
+      interval: 'month' | 'year';
+    };
+    business: {
+      id: string;
+      anualId: string;
+      name: string;
+      price: number;
+      anualPrice?: number;
+      interval: 'month' | 'year';
+    };
+    enterprise: {
+      id: string;
+      anualId: string;
+      name: string;
+      price: number;
+      anualPrice?: number;
+      interval: 'month' | 'year';
+    };
+  };
 }
