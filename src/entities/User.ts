@@ -26,7 +26,7 @@ export class User {
   @Column({ nullable: true, type: 'varchar', length: 20 })
   phone: string | null;
 
-  @Column({ type: 'varchar' })
+  @Column({ type: 'varchar', select: false })
   companyId: string;
 
   @OneToOne(() => Company, { onDelete: 'SET NULL', onUpdate: 'CASCADE' })
@@ -41,6 +41,12 @@ export class User {
 
   @Column({ default: false })
   isEmailVerified: boolean;
+
+  @Column({ nullable: true, type: 'varchar', select: false })
+  stripeCustomerId: string | null;
+
+  @Column({ nullable: true, type: 'varchar', select: false })
+  defaultPaymentMethodId: string | null;
 
   @Column({ nullable: true, type: 'varchar', select: false })
   verificationToken: string | null;

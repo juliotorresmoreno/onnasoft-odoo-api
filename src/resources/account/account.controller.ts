@@ -36,7 +36,7 @@ export class AccountController {
   @SetMetadata('roles', [Role.User, Role.Admin])
   @ApiOperation({ summary: 'Update account settings' })
   @ApiBody({ type: UpdateAccountDto })
-  @Patch()
+  @Patch('/me')
   async update(
     @Request() req: Express.Request & { user: User },
     @Body(new ValidationPipe()) payload: UpdateAccountDto,

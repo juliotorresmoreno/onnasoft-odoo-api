@@ -61,12 +61,14 @@ export class AccountService {
   }
 
   async update(id: string, payload: UpdateAccountDto) {
-    await this.usersService.update(id, payload).catch((error) => {
-      throw new InternalServerErrorException(
-        'Failed to update account',
-        error.message,
-      );
-    });
+    const result = await this.usersService
+      .update(id, payload)
+      .catch((error) => {
+        throw new InternalServerErrorException(
+          'Failed to update account',
+          error.message,
+        );
+      });
 
     await this.notificationsService
       .create(
@@ -86,12 +88,7 @@ export class AccountService {
         );
       });
 
-    return this.findOne(id).catch((error) => {
-      throw new InternalServerErrorException(
-        'Failed to retrieve updated account',
-        error.message,
-      );
-    });
+    return result;
   }
 
   async updatePassword(id: string, payload: UpdatePasswordDto) {
@@ -120,8 +117,8 @@ export class AccountService {
       throw new BadRequestException('Current password is incorrect');
     }
 
-    await this.usersService
-      .update(id, {
+    const result = await this.usersService
+      .update(user.id, {
         password: hashedPassword,
       })
       .catch((error) => {
@@ -135,7 +132,7 @@ export class AccountService {
       .create(
         new Notification({
           title: 'Password Updated',
-          userId: id,
+          userId: user.id,
           metadata: {
             type: 'password_update',
             message: 'Your password has been successfully updated.',
@@ -149,12 +146,7 @@ export class AccountService {
         );
       });
 
-    return this.findOne(id).catch((error) => {
-      throw new InternalServerErrorException(
-        'Failed to retrieve updated account',
-        error.message,
-      );
-    });
+    return result;
   }
 
   removeMe(id: string) {

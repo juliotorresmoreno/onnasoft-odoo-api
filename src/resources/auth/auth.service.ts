@@ -448,7 +448,6 @@ export class AuthService {
   async login(user: User, rememberMe: boolean = false) {
     const updateUser = await this.usersService.findOne({
       where: { email: user.email },
-      select: ['role'],
     });
 
     const payload = {
@@ -465,19 +464,29 @@ export class AuthService {
       expiresIn: rememberMe ? '90d' : '30d',
     });
 
-    return { access_token, refresh_token };
+    return { access_token, refresh_token, user: updateUser };
   }
 
-  refreshToken(user: User) {
-    const payload = { email: user.email, sub: user.id, role: Role.User };
+  async refreshToken(user: User) {
+    const updateUser = await this.usersService.findOne({
+      where: { email: user.email },
+    });
 
-    const accessToken = this.jwtService.sign(payload, {
+    const payload = {
+      email: user.email,
+      sub: user.id,
+      role: updateUser?.role || Role.User,
+    };
+
+    const access_token = this.jwtService.sign(payload, {
       expiresIn: '1h',
     });
 
-    return {
-      access_token: accessToken,
-    };
+    const refresh_token = this.jwtService.sign(payload, {
+      expiresIn: '30d',
+    });
+
+    return { access_token, refresh_token, user: updateUser };
   }
 
   async verifyToken(token: string) {
