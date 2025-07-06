@@ -40,7 +40,6 @@ export class AccountService {
           'language',
           'timezone',
           'newsletter',
-          'plan',
           'createdAt',
           'updatedAt',
         ],

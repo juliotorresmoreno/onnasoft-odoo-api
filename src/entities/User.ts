@@ -73,12 +73,8 @@ export class User {
   @Column({ default: false })
   newsletter: boolean;
 
-  @Column({
-    type: 'enum',
-    enum: ['free', 'basic', 'pro', 'premium'],
-    default: 'free',
-  })
-  plan: string;
+  @Column({ nullable: true, type: 'varchar', select: false })
+  plan_id: string;
 
   @Column({
     type: 'enum',

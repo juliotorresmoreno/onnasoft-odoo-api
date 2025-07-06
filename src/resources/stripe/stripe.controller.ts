@@ -7,6 +7,7 @@ import {
   Body,
   BadRequestException,
   SetMetadata,
+  Get,
 } from '@nestjs/common';
 import { Response } from 'express';
 import { StripeService } from './stripe.service';
@@ -54,6 +55,26 @@ export class StripeController {
     try {
       const setupIntent = await this.stripeService.createSetupIntent(email);
       return res.status(200).json(setupIntent);
+    } catch (error) {
+      return res.status(500).json({ error: error.message });
+    }
+  }
+
+  @SetMetadata('roles', [Role.User, Role.Admin])
+  @Get('payment-method')
+  async getPaymentMethods(
+    @Res() res: Response,
+    @Req() req: Express.Request & { user: User },
+  ) {
+    try {
+      const paymentMethods = await this.stripeService.getPaymentMethod(
+        req.user.id,
+      );
+      if (!paymentMethods) {
+        return res.status(204).json({ message: 'No payment methods found' });
+      }
+
+      return res.status(200).json(paymentMethods);
     } catch (error) {
       return res.status(500).json({ error: error.message });
     }

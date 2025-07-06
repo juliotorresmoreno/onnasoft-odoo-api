@@ -27,10 +27,6 @@ export class StripeService {
     });
   }
 
-  async createCustomer(email: string) {
-    return this.stripe.customers.create({ email });
-  }
-
   async createCheckoutSession(params: { customerId: string; priceId: string }) {
     return this.stripe.checkout.sessions.create({
       mode: 'subscription',
@@ -71,26 +67,44 @@ export class StripeService {
   }
 
   async createSetupIntent(email: string) {
-    const user = await this.usersService.findOne({ where: { email } });
+    const user = await this.usersService.findOne({
+      select: ['id', 'firstName', 'lastName', 'phone', 'stripeCustomerId'],
+      where: { email },
+    });
 
     if (!user) {
       throw new Error('User not found');
     }
 
-    if (!user.stripeCustomerId) {
-      const customer = await this.stripe.customers.create({ email });
-      user.stripeCustomerId = customer.id;
+    const createUser = async () => {
+      const customer = await this.stripe.customers.create({
+        name: `${user.firstName} ${user.lastName}`,
+        email,
+        phone: user.phone || undefined,
+        metadata: { userId: user.id },
+      });
       await this.usersService.update(user.id, {
         stripeCustomerId: customer.id,
       });
+      user.stripeCustomerId = customer.id;
+    };
+
+    if (!user.stripeCustomerId || user.stripeCustomerId === '') {
+      await createUser();
+    } else {
+      const customer = await this.stripe.customers.retrieve(
+        user.stripeCustomerId,
+      );
+      if (!customer || customer.deleted) await createUser();
     }
 
-    const setupIntent = await this.stripe.setupIntents.create({
-      customer: user.stripeCustomerId,
+    const intent = await this.stripe.setupIntents.create({
+      customer: user.stripeCustomerId!,
+      payment_method_types: ['card'],
     });
 
     return {
-      clientSecret: setupIntent.client_secret,
+      clientSecret: intent.client_secret,
       customerId: user.stripeCustomerId,
     };
   }
@@ -102,5 +116,29 @@ export class StripeService {
     }
     const secret = stripeConf.webhookSecret;
     return this.stripe.webhooks.constructEvent(payload, sig, secret);
+  }
+
+  async getPaymentMethod(userId: string) {
+    const user = await this.usersService.findOne({
+      where: { id: userId },
+      select: ['id', 'stripeCustomerId', 'defaultPaymentMethodId'],
+    });
+
+    if (!user?.stripeCustomerId) {
+      throw new NotFoundException('User not found');
+    }
+
+    const paymentMethods = await this.stripe.paymentMethods.list({
+      customer: user.stripeCustomerId,
+      type: 'card',
+    });
+
+    const paymentMethod = (paymentMethods.data || []).filter(
+      (pm) =>
+        pm.id === user.defaultPaymentMethodId ||
+        pm.card?.checks?.cvc_check === 'pass',
+    );
+
+    return paymentMethod[0];
   }
 }
