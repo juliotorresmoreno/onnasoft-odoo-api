@@ -24,17 +24,14 @@ export class Plan {
   @Column({ type: 'decimal', precision: 10, scale: 2 })
   price: number;
 
-  @Column({ type: 'decimal', precision: 10, scale: 2 })
-  anualPrice: number;
-
-  @Column({ type: 'varchar', length: 100, unique: true })
+  @Column({ type: 'varchar', length: 100, unique: true, select: false })
   stripePriceId: string;
-
-  @Column({ type: 'varchar', length: 100, unique: true })
-  stripeAnualPriceId: string;
 
   @Column({ default: true })
   active: boolean;
+
+  @Column({ type: 'enum', enum: ['month', 'year'], default: 'month' })
+  period: 'month' | 'year';
 
   @OneToMany(() => PlanTranslation, (translation) => translation.plan, {
     cascade: true,

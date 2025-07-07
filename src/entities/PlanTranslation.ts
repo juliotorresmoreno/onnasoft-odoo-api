@@ -5,6 +5,9 @@ import {
   ManyToOne,
   JoinColumn,
   Unique,
+  CreateDateColumn,
+  UpdateDateColumn,
+  DeleteDateColumn,
 } from 'typeorm';
 import { Plan } from './Plan';
 import { defaultLanguage, Language, languages } from '@/utils/language';
@@ -38,4 +41,13 @@ export class PlanTranslation {
 
   @Column()
   planId: string;
+
+  @CreateDateColumn()
+  createdAt: Date;
+
+  @UpdateDateColumn()
+  updatedAt: Date;
+
+  @DeleteDateColumn()
+  deletedAt: Date | null;
 }

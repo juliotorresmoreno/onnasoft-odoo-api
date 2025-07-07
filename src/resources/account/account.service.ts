@@ -13,6 +13,8 @@ import { FindManyOptions, FindOneOptions } from 'typeorm';
 import { User } from '@/entities/User';
 import { ConfigService } from '@nestjs/config';
 import { Configuration } from '@/types/configuration';
+import { SelectPlanDto } from './dto/select-plan.dto';
+import { StripeService } from '../stripe/stripe.service';
 
 @Injectable()
 export class AccountService {
@@ -22,6 +24,7 @@ export class AccountService {
     private readonly configService: ConfigService,
     private readonly notificationsService: NotificationsService,
     private readonly usersService: UsersService,
+    private readonly stripeService: StripeService,
   ) {
     this.defaultLimit =
       this.configService.get<Configuration>('config')?.defaultLimit ?? 10;
@@ -47,6 +50,14 @@ export class AccountService {
       });
     }
     return this.usersService.findOne(params);
+  }
+
+  async selectPlan(userId: string, payload: SelectPlanDto) {
+    await this.stripeService.subscribeToPlan(userId, payload.planId);
+
+    await this.usersService.update(userId, {
+      planId: payload.planId,
+    });
   }
 
   async findAll(options?: FindManyOptions<User>) {

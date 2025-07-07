@@ -7,6 +7,7 @@ import {
   SetMetadata,
   Request,
   UnauthorizedException,
+  Post,
 } from '@nestjs/common';
 import { AccountService } from './account.service';
 import { UpdateAccountDto } from './dto/update-account.dto';
@@ -15,14 +16,28 @@ import { Role } from '@/types/role';
 import { User } from '@/entities/User';
 import { ValidationPipe } from '@/pipes/validation.pipe';
 import { UpdatePasswordDto } from './dto/update-password.dto';
+import { SelectPlanDto } from './dto/select-plan.dto';
 
 @Controller('account')
 export class AccountController {
   constructor(private readonly accountService: AccountService) {}
 
   @SetMetadata('roles', [Role.User, Role.Admin])
+  @Post('select-plan')
+  async select(
+    @Body(new ValidationPipe()) payload: SelectPlanDto,
+    @Request() req: Express.Request & { user: User },
+  ) {
+    await this.accountService.selectPlan(req.user.id, payload);
+
+    return {
+      message: 'Plan selected successfully',
+    };
+  }
+
+  @SetMetadata('roles', [Role.User, Role.Admin])
   @ApiOperation({ summary: 'Get current user account details' })
-  @Get()
+  @Get('me')
   findMe(@Request() req: Express.Request & { user: User }) {
     if (!req.user || !req.user.id) {
       throw new UnauthorizedException('User not authenticated');
@@ -30,6 +45,7 @@ export class AccountController {
 
     return this.accountService.findOne({
       where: { email: req.user.email },
+      relations: ['plan'],
     });
   }
 

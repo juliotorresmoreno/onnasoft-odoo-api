@@ -11,6 +11,7 @@ import {
 } from 'typeorm';
 import { Company } from './Company';
 import { Role } from '@/types/role';
+import { Plan } from './Plan';
 
 @Entity('users')
 export class User {
@@ -74,7 +75,11 @@ export class User {
   newsletter: boolean;
 
   @Column({ nullable: true, type: 'varchar', select: false })
-  plan_id: string;
+  planId: string;
+
+  @OneToOne(() => Plan, { onDelete: 'SET NULL', onUpdate: 'CASCADE' })
+  @JoinColumn({ name: 'planId' })
+  plan?: Plan;
 
   @Column({
     type: 'enum',

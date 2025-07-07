@@ -120,12 +120,27 @@ function handleSelectKey(
   options: FindManyOptions<any>,
 ) {
   const field = key.slice(7, -1);
-  if (!Array.isArray(options.select)) {
-    options.select = ['id', 'created_at', 'updated_at'];
+
+  if (!options.select) {
+    options.select = {
+      id: true,
+      createdAt: true,
+      updatedAt: true,
+    };
   }
-  if (value === 'true' && Array.isArray(options.select)) {
-    options.select.push(field);
+
+  const path = field.split('.');
+  const lastField = path.pop();
+  if (!lastField) return;
+  let baseField = options.select;
+  for (const p of path) {
+    if (!options.select[p]) {
+      options.select[p] = {};
+      baseField = options.select[p];
+    }
   }
+
+  baseField[lastField] = value === 'true' || value === true;
 }
 
 export function buildFindManyOptions<T>(
