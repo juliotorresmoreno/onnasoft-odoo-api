@@ -24,7 +24,10 @@ export class ContactService {
       `Contact Form Submission: ${subject}`,
       `<p>You have a new contact form submission from <strong>${name}</strong> (${email}):</p>
       <p><strong>Subject:</strong> ${subject}</p>
-      <p><strong>Message:</strong> ${message}</p>`,
+      <p><strong>Message:</strong> ${message}</p>
+      <p><strong>Phone:</strong> ${payloar.phone || 'N/A'}</p>
+      <p><strong>Company:</strong> ${payloar.company || 'N/A'}</p>
+      `,
     );
 
     return 'Contact form submitted successfully';

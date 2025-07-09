@@ -224,4 +224,22 @@ export class StripeService {
 
     return paymentMethod[0];
   }
+
+  async getBillings(userId: string) {
+    const user = await this.usersService.findOne({
+      where: { id: userId },
+      select: ['id', 'stripeCustomerId'],
+    });
+
+    if (!user?.stripeCustomerId) {
+      throw new NotFoundException('User not found');
+    }
+
+    const billings = await this.stripe.invoices.list({
+      customer: user.stripeCustomerId,
+      limit: 100,
+    });
+
+    return billings.data;
+  }
 }

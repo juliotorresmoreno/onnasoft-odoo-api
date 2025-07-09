@@ -3,11 +3,13 @@ import { ContactService } from './contact.service';
 import { CreateContactDto } from './dto/create-contact.dto';
 import { ApiBody, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { RegisterResponseDto } from './dto/register-response.dto';
+import { Public } from '@/utils/secure';
 
 @Controller('contact')
 export class ContactController {
   constructor(private readonly contactService: ContactService) {}
 
+  @Public()
   @Post('')
   @ApiOperation({ summary: 'Register a new user' })
   @ApiResponse({

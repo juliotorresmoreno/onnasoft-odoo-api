@@ -79,4 +79,18 @@ export class StripeController {
       return res.status(500).json({ error: error.message });
     }
   }
+
+  @SetMetadata('roles', [Role.User, Role.Admin])
+  @Get('billings')
+  async getBillings(
+    @Res() res: Response,
+    @Req() req: Express.Request & { user: User },
+  ) {
+    try {
+      const billings = await this.stripeService.getBillings(req.user.id);
+      return res.status(200).json(billings);
+    } catch (error) {
+      return res.status(500).json({ error: error.message });
+    }
+  }
 }
