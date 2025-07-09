@@ -12,6 +12,7 @@ import {
 import { Company } from './Company';
 import { Role } from '@/types/role';
 import { Plan } from './Plan';
+import { Installation } from './Installation';
 
 @Entity('users')
 export class User {
@@ -36,6 +37,12 @@ export class User {
 
   @Column({ unique: true })
   email: string;
+
+  @OneToOne(() => Installation, (installation) => installation.user, {
+    onDelete: 'CASCADE',
+  })
+  @JoinColumn({ name: 'installationId' })
+  installation: Installation;
 
   @Column({ select: false, type: 'varchar' })
   password: string;
