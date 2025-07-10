@@ -38,6 +38,9 @@ export class User {
   @Column({ unique: true })
   email: string;
 
+  @Column({ type: 'varchar', nullable: true })
+  installationId: string;
+
   @OneToOne(() => Installation, (installation) => installation.user, {
     onDelete: 'CASCADE',
   })
@@ -87,6 +90,41 @@ export class User {
   @OneToOne(() => Plan, { onDelete: 'SET NULL', onUpdate: 'CASCADE' })
   @JoinColumn({ name: 'planId' })
   plan?: Plan;
+
+  @Column({ type: 'timestamp', nullable: true })
+  planStartDate: Date | null;
+
+  @Column({ type: 'timestamp', nullable: true })
+  planEndDate: Date | null;
+
+  @Column({ nullable: true, type: 'varchar', select: false })
+  stripeSubscriptionId: string | null;
+
+  @Column({
+    type: 'enum',
+    enum: [
+      'active',
+      'canceled',
+      'past_due',
+      'unpaid',
+      'incomplete',
+      'incomplete_expired',
+      'trialing',
+      'paused',
+    ],
+    default: 'active',
+    select: true,
+    comment: "The status of the user's subscription plan",
+  })
+  planStatus:
+    | 'active'
+    | 'canceled'
+    | 'past_due'
+    | 'unpaid'
+    | 'incomplete'
+    | 'incomplete_expired'
+    | 'trialing'
+    | 'paused';
 
   @Column({
     type: 'enum',

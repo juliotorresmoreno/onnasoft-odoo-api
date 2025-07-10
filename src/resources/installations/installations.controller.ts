@@ -9,6 +9,7 @@ import {
   SetMetadata,
   Request,
   UnauthorizedException,
+  ValidationPipe,
 } from '@nestjs/common';
 import { InstallationsService } from './installations.service';
 import { CreateInstallationDto } from './dto/create-installation.dto';
@@ -21,9 +22,20 @@ import { User } from '@/entities/User';
 export class InstallationsController {
   constructor(private readonly installationsService: InstallationsService) {}
 
+  @SetMetadata('roles', [Role.User, Role.Admin])
   @Post()
-  create(@Body() createInstallationDto: CreateInstallationDto) {
-    return this.installationsService.create(createInstallationDto);
+  async create(
+    @Request() req: Express.Request & { user: User },
+    @Body(new ValidationPipe()) payload: CreateInstallationDto,
+  ) {
+    if (!req.user || !req.user.id) {
+      throw new UnauthorizedException('User not authenticated');
+    }
+
+    return this.installationsService.create({
+      ...payload,
+      userId: req.user.id,
+    });
   }
 
   @Get()

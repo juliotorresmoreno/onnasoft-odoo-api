@@ -1,11 +1,12 @@
-import { Injectable } from '@nestjs/common';
-import { CreateInstallationDto } from './dto/create-installation.dto';
-import { UpdateInstallationDto } from './dto/update-installation.dto';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { Installation } from '@/entities/Installation';
 import { FindManyOptions, FindOneOptions, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ConfigService } from '@nestjs/config';
 import { pagination } from '@/utils/pagination';
+import { CreateInstallationDto } from './dto/create-installation.dto';
+import { UpdateInstallationDto } from './dto/update-installation.dto';
+import { UsersService } from '@/resources/users/users.service';
 
 @Injectable()
 export class InstallationsService {
@@ -14,14 +15,38 @@ export class InstallationsService {
     private readonly configService: ConfigService,
     @InjectRepository(Installation)
     private readonly installationRepository: Repository<Installation>,
+    private readonly usersService: UsersService,
   ) {
     const config = this.configService.get('config');
     this.defaultLimit = config?.defaultLimit || 10;
   }
 
-  create(payload: CreateInstallationDto) {
-    const installation = this.installationRepository.create(payload);
-    return this.installationRepository.save(installation);
+  async create(payload: CreateInstallationDto & { userId: string }) {
+    const user = await this.usersService.findOne({
+      where: { id: payload.userId },
+      select: ['id', 'stripeCustomerId', 'stripeSubscriptionId'],
+    });
+
+    if (!user) {
+      throw new BadRequestException(
+        'User not found. Please provide a valid user ID.',
+      );
+    }
+
+    if (!user.stripeCustomerId || !user.stripeSubscriptionId) {
+      throw new BadRequestException(
+        'User is not subscribed to any plan. Please provide a valid user ID.',
+      );
+    }
+
+    return this.installationRepository.save({
+      ...payload,
+      domain: payload.database,
+      status: 'active',
+      userId: payload.userId,
+      stripeCustomerId: user.stripeCustomerId,
+      subscriptionId: user.stripeSubscriptionId,
+    });
   }
 
   async findAll(options?: FindManyOptions<Installation>) {

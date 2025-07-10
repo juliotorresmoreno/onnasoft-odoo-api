@@ -45,7 +45,7 @@ export class AccountController {
 
     return this.accountService.findOne({
       where: { email: req.user.email },
-      relations: ['plan'],
+      relations: ['plan', 'installation'],
     });
   }
 

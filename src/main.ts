@@ -16,10 +16,9 @@ async function bootstrap() {
   );
 
   const config = new DocumentBuilder()
-    .setTitle('Pro Meet API')
-    .setDescription('API documentation for Pro Meet application')
+    .setTitle('OnnaSoft Odoo API')
+    .setDescription('API documentation for OnnaSoft Odoo application')
     .setVersion('1.0')
-    .addTag('cats')
     .build();
   const documentFactory = () => SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('docs', app, documentFactory);

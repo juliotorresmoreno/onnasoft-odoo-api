@@ -30,8 +30,8 @@ export class CompanyController {
 
   @SetMetadata('roles', [Role.User, Role.Admin])
   @Post()
-  create(@Body() createCompanyDto: CreateCompanyDto) {
-    return this.companyService.create(createCompanyDto);
+  create(@Body() payload: CreateCompanyDto) {
+    return this.companyService.create(payload);
   }
 
   @Public()

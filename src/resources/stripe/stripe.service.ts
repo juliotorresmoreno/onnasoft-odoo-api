@@ -192,15 +192,6 @@ export class StripeService {
     };
   }
 
-  async handleWebhook(payload: Buffer, sig: string) {
-    const stripeConf = this.configService.get<Configuration>('config')?.stripe;
-    if (!stripeConf?.webhookSecret) {
-      throw new Error('Stripe webhook secret is not configured');
-    }
-    const secret = stripeConf.webhookSecret;
-    return this.stripe.webhooks.constructEvent(payload, sig, secret);
-  }
-
   async getPaymentMethod(userId: string) {
     const user = await this.usersService.findOne({
       where: { id: userId },
@@ -241,5 +232,108 @@ export class StripeService {
     });
 
     return billings.data;
+  }
+
+  async getSubscriptionDetails(subscription: Stripe.Subscription) {
+    const config = this.configService.get('config') as Configuration;
+    const customerId = subscription.customer as string;
+    const user = await this.usersService.findOne({
+      where: { stripeCustomerId: customerId },
+      select: ['id', 'email'],
+    });
+    if (!user) {
+      console.error(
+        `User not found for customer ID ${customerId} in subscription.created event`,
+      );
+      throw new NotFoundException(
+        `User with customer ID ${customerId} not found`,
+      );
+    }
+
+    if (subscription.items.data.length === 0) {
+      console.warn(
+        `No items found in subscription for customer ID ${customerId}`,
+      );
+      throw new NotFoundException(
+        `No subscription items found for customer ID ${customerId}`,
+      );
+    }
+    // Una suscripción puede tener múltiples ítems, pero lo más común es uno.
+    const subscriptionItem = subscription.items.data[0]; // Tomamos el primer ítem
+    const priceId = subscriptionItem.price.id; // ID del precio (Stripe Price ID)
+    const priceObject = subscriptionItem.price;
+
+    if (typeof priceObject.product !== 'string') {
+      console.error(
+        `Invalid product ID type for price ID ${priceId} in subscription.created event`,
+      );
+      throw new NotFoundException(
+        `Product ID for price ${priceId} is not a string`,
+      );
+    }
+
+    const productId = priceObject.product;
+    if (config.stripe.productId !== productId) {
+      console.warn(
+        `Product ID mismatch: expected ${config.stripe.productId}, got ${productId}`,
+      );
+      throw new NotFoundException(
+        `Product with ID ${productId} not found in configuration`,
+      );
+    }
+
+    const plan = await this.plansService.findOne({
+      where: { stripePriceId: priceId },
+      select: ['id', 'name'],
+    });
+
+    if (!plan) {
+      console.error(
+        `Plan not found for price ID ${priceId} in subscription.created event`,
+      );
+      throw new NotFoundException(
+        `Plan with ID ${priceId} not found in configuration`,
+      );
+    }
+
+    return {
+      user,
+      plan,
+      status: subscription.status,
+      currentPeriodStart: new Date(
+        subscriptionItem.current_period_start * 1000,
+      ),
+      currentPeriodEnd: new Date(subscriptionItem.current_period_end * 1000),
+      priceId: priceId,
+      priceObject: priceObject,
+    };
+  }
+
+  async handleEvent(event: Stripe.Event) {
+    switch (event.type) {
+      case 'customer.subscription.created':
+      case 'customer.subscription.deleted':
+      case 'customer.subscription.paused':
+      case 'customer.subscription.pending_update_applied':
+      case 'customer.subscription.pending_update_expired':
+      case 'customer.subscription.resumed':
+      case 'customer.subscription.updated': {
+        const subscription = event.data.object;
+        const { user, plan, status, currentPeriodStart, currentPeriodEnd } =
+          await this.getSubscriptionDetails(subscription);
+
+        await this.usersService.update(user.id, {
+          planId: plan.id,
+          planStartDate: currentPeriodStart,
+          planEndDate: currentPeriodEnd,
+          planStatus: status,
+          stripeSubscriptionId: subscription.id,
+        });
+
+        break;
+      }
+      default:
+        console.log(`Unhandled event type ${event.type}`);
+    }
   }
 }

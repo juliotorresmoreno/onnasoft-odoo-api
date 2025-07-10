@@ -6,6 +6,7 @@ import {
   UpdateDateColumn,
   JoinColumn,
   OneToOne,
+  DeleteDateColumn,
 } from 'typeorm';
 import { User } from './User';
 
@@ -27,6 +28,18 @@ export class Installation {
   user: User;
 
   @Column({ nullable: true })
+  version: string;
+
+  @Column({ nullable: true })
+  edition: string;
+
+  @Column({ nullable: true })
+  licenseKey: string;
+
+  @Column({ nullable: true })
+  database: string;
+
+  @Column({ nullable: true })
   subscriptionId: string;
 
   @Column({ nullable: true })
@@ -40,4 +53,7 @@ export class Installation {
 
   @UpdateDateColumn()
   updatedAt: Date;
+
+  @DeleteDateColumn({ nullable: true })
+  deletedAt: Date | null;
 }

@@ -335,6 +335,10 @@ class EnvironmentVariables {
       'PLAN_ENTERPRISE_ANUAL_PRICE must be a valid number with up to 2 decimal places',
   })
   PLAN_ENTERPRISE_ANUAL_PRICE: string;
+
+  @IsString()
+  @IsNotEmpty({ message: 'STRIPE_PRODUCT_ID is required' })
+  STRIPE_PRODUCT_ID: string;
 }
 
 export function validate(config: Record<string, unknown>) {

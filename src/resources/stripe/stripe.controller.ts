@@ -8,27 +8,62 @@ import {
   BadRequestException,
   SetMetadata,
   Get,
+  Headers,
+  RawBodyRequest,
 } from '@nestjs/common';
 import { Response } from 'express';
 import { StripeService } from './stripe.service';
 import { Public } from '@/utils/secure';
 import { User } from '@/entities/User';
 import { Role } from '@/types/role';
+import Stripe from 'stripe';
+import { ConfigService } from '@nestjs/config';
+import { Configuration } from '@/types/configuration';
 
 @Controller('stripe')
 export class StripeController {
-  constructor(private readonly stripeService: StripeService) {}
+  constructor(
+    private readonly configService: ConfigService,
+    private readonly stripeService: StripeService,
+  ) {}
 
   @Public()
   @Post('webhook')
   @HttpCode(200)
-  async handleWebhook() {
-    //@Req() req: Request,
-    //@Res() res: Response,
-    //@Headers('stripe-signature') signature: string,
-    throw new BadRequestException(
-      'Webhook endpoint is not implemented yet. Please implement it to handle Stripe events.',
-    );
+  async handleWebhook(
+    @Req() req: RawBodyRequest<Request>,
+    @Res() res: Response,
+    @Headers('stripe-signature') signature: string,
+  ) {
+    const config = this.configService.get('config') as Configuration;
+    if (!signature) {
+      throw new BadRequestException('Stripe signature is required');
+    }
+
+    const rawBody = req.body;
+    if (!(rawBody instanceof Buffer)) {
+      throw new BadRequestException('Request body is required');
+    }
+
+    if (!config.stripe || !config.stripe.webhookSecret) {
+      throw new BadRequestException('Stripe webhook secret is not configured');
+    }
+
+    let event: Stripe.Event;
+
+    try {
+      event = Stripe.webhooks.constructEvent(
+        rawBody,
+        signature,
+        config.stripe.webhookSecret,
+      );
+
+      await this.stripeService.handleEvent(event);
+
+      return res.status(200).json({ received: true });
+    } catch (err) {
+      throw new BadRequestException(`Webhook Error: ${err.message}`);
+    }
   }
 
   @SetMetadata('roles', [Role.User, Role.Admin])
