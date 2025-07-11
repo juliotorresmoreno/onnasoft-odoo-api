@@ -39,14 +39,37 @@ export class InstallationsService {
       );
     }
 
-    return this.installationRepository.save({
-      ...payload,
-      domain: payload.database,
-      status: 'active',
-      userId: payload.userId,
-      stripeCustomerId: user.stripeCustomerId,
-      subscriptionId: user.stripeSubscriptionId,
+    const existingDomain = await this.installationRepository.findOne({
+      where: { domain: payload.database },
     });
+    if (existingDomain) {
+      throw new BadRequestException(
+        'An installation already exists for this domain. Please use a different database name.',
+      );
+    }
+
+    const existingInstallation = await this.installationRepository.findOne({
+      where: { userId: payload.userId },
+    });
+
+    if (existingInstallation) {
+      throw new BadRequestException(
+        'An installation already exists for this user. Please remove the existing installation before creating a new one.',
+      );
+    }
+
+    return this.installationRepository
+      .save({
+        ...payload,
+        domain: payload.database,
+        status: 'pending',
+        userId: payload.userId,
+        stripeCustomerId: user.stripeCustomerId,
+        subscriptionId: user.stripeSubscriptionId,
+      })
+      .catch(() => {
+        throw new BadRequestException('Error creating installation');
+      });
   }
 
   async findAll(options?: FindManyOptions<Installation>) {

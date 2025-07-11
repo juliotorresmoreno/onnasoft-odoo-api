@@ -10,6 +10,16 @@ import {
 } from 'typeorm';
 import { User } from './User';
 
+export const installationStatus = [
+  'active',
+  'maintenance',
+  'pending',
+  'failed',
+  'inactive',
+] as const;
+
+type InstallationStatus = (typeof installationStatus)[number];
+
 @Entity('installations')
 export class Installation {
   @PrimaryGeneratedColumn('uuid')
@@ -18,10 +28,10 @@ export class Installation {
   @Column({ unique: true })
   domain: string;
 
-  @Column()
+  @Column({ type: 'varchar', unique: true })
   userId: string;
 
-  @OneToOne(() => User, (user) => user.installation, {
+  @OneToOne(() => User, {
     onDelete: 'CASCADE',
   })
   @JoinColumn({ name: 'userId' })
@@ -33,20 +43,24 @@ export class Installation {
   @Column({ nullable: true })
   edition: string;
 
-  @Column({ nullable: true })
+  @Column({ nullable: true, select: false })
   licenseKey: string;
 
   @Column({ nullable: true })
   database: string;
 
-  @Column({ nullable: true })
+  @Column({ nullable: true, select: false })
   subscriptionId: string;
 
-  @Column({ nullable: true })
+  @Column({ nullable: true, select: false })
   stripeCustomerId: string;
 
-  @Column({ nullable: true })
-  status: string;
+  @Column({
+    type: 'enum',
+    enum: installationStatus,
+    default: 'pending',
+  })
+  status: InstallationStatus;
 
   @CreateDateColumn()
   createdAt: Date;

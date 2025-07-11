@@ -38,13 +38,11 @@ export class User {
   @Column({ unique: true })
   email: string;
 
-  @Column({ type: 'varchar', nullable: true })
-  installationId: string;
-
-  @OneToOne(() => Installation, (installation) => installation.user, {
-    onDelete: 'CASCADE',
+  @OneToOne(() => Installation, {
+    onDelete: 'SET NULL',
+    onUpdate: 'CASCADE',
   })
-  @JoinColumn({ name: 'installationId' })
+  @JoinColumn({ name: 'id', referencedColumnName: 'userId' })
   installation: Installation;
 
   @Column({ select: false, type: 'varchar' })
