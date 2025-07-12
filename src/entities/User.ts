@@ -39,8 +39,9 @@ export class User {
   email: string;
 
   @OneToOne(() => Installation, {
-    onDelete: 'SET NULL',
-    onUpdate: 'CASCADE',
+    onDelete: 'NO ACTION',
+    onUpdate: 'NO ACTION',
+    createForeignKeyConstraints: false,
   })
   @JoinColumn({ name: 'id', referencedColumnName: 'userId' })
   installation: Installation;

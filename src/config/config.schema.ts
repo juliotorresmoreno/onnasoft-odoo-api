@@ -339,6 +339,25 @@ class EnvironmentVariables {
   @IsString()
   @IsNotEmpty({ message: 'STRIPE_PRODUCT_ID is required' })
   STRIPE_PRODUCT_ID: string;
+
+  // Odoo Configuration
+  @IsString()
+  @IsNotEmpty({ message: 'ODOO_ADMIN_URL is required' })
+  @Matches(/^(http(s)?:\/\/)?([\w.-]+)(:\d+)?(\/[\w.-]*)*\/?$/, {
+    message: 'ODOO_ADMIN_URL must be a valid URL',
+  })
+  ODOO_ADMIN_URL: string;
+
+  @IsString()
+  @IsNotEmpty({ message: 'ODOO_ADMIN_USER is required' })
+  ODOO_ADMIN_USER: string;
+
+  @IsString()
+  @IsNotEmpty({ message: 'ODOO_ADMIN_PASSWORD is required' })
+  @MinLength(8, {
+    message: 'ODOO_ADMIN_PASSWORD must be at least 8 characters long',
+  })
+  ODOO_ADMIN_PASSWORD: string;
 }
 
 export function validate(config: Record<string, unknown>) {

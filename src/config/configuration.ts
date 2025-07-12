@@ -92,5 +92,11 @@ export default registerAs('config', (): Configuration => {
           (process.env.PLAN_ENTERPRISE_INTERVAL as 'month' | 'year') || 'month',
       },
     },
+
+    odoo: {
+      adminUrl: process.env.ODDO_ADMIN_URL || 'http://localhost:18069',
+      adminUser: process.env.ODOO_ADMIN_USER || 'admin',
+      adminPassword: process.env.ODOO_ADMIN_PASSWORD!,
+    },
   };
 });

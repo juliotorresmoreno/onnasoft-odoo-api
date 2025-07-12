@@ -7,6 +7,7 @@ import { pagination } from '@/utils/pagination';
 import { CreateInstallationDto } from './dto/create-installation.dto';
 import { UpdateInstallationDto } from './dto/update-installation.dto';
 import { UsersService } from '@/resources/users/users.service';
+import { OdooService } from '@/services/odoo/odoo.service';
 
 @Injectable()
 export class InstallationsService {
@@ -16,6 +17,7 @@ export class InstallationsService {
     @InjectRepository(Installation)
     private readonly installationRepository: Repository<Installation>,
     private readonly usersService: UsersService,
+    private readonly odooService: OdooService,
   ) {
     const config = this.configService.get('config');
     this.defaultLimit = config?.defaultLimit || 10;
@@ -24,7 +26,14 @@ export class InstallationsService {
   async create(payload: CreateInstallationDto & { userId: string }) {
     const user = await this.usersService.findOne({
       where: { id: payload.userId },
-      select: ['id', 'stripeCustomerId', 'stripeSubscriptionId'],
+      select: [
+        'id',
+        'phone',
+        'email',
+        'language',
+        'stripeCustomerId',
+        'stripeSubscriptionId',
+      ],
     });
 
     if (!user) {
@@ -66,6 +75,37 @@ export class InstallationsService {
         userId: payload.userId,
         stripeCustomerId: user.stripeCustomerId,
         subscriptionId: user.stripeSubscriptionId,
+      })
+      .then(async (installation) => {
+        try {
+          if (payload.edition === 'community') {
+            console.log({
+              name: payload.database,
+              password: payload.password,
+              lang: `${user.language}_US`,
+              phone: user.phone ?? '',
+            });
+
+            await this.odooService.createDatabase({
+              login: user.email,
+              name: payload.database,
+              password: payload.password,
+              lang: `${user.language}_US`,
+              phone: user.phone ?? '',
+            });
+
+            await this.installationRepository.update(installation.id, {
+              status: 'active',
+            });
+          }
+
+          return installation;
+        } catch {
+          await this.installationRepository.delete(installation.id);
+          throw new BadRequestException(
+            'Failed to create Odoo database. Please check your configuration.',
+          );
+        }
       })
       .catch(() => {
         throw new BadRequestException('Error creating installation');

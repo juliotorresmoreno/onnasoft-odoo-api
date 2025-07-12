@@ -32,7 +32,8 @@ export class Installation {
   userId: string;
 
   @OneToOne(() => User, {
-    onDelete: 'CASCADE',
+    onDelete: 'NO ACTION',
+    onUpdate: 'NO ACTION',
   })
   @JoinColumn({ name: 'userId' })
   user: User;
@@ -48,6 +49,9 @@ export class Installation {
 
   @Column({ nullable: true })
   database: string;
+
+  @Column({ nullable: true })
+  password: string;
 
   @Column({ nullable: true, select: false })
   subscriptionId: string;

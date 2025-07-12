@@ -32,6 +32,7 @@ import { PlansModule } from './resources/plans/plans.module';
 import { PlanTranslation } from './entities/PlanTranslation';
 import { InstallationsModule } from './resources/installations/installations.module';
 import { Installation } from './entities/Installation';
+import { OdooModule } from './services/odoo/odoo.module';
 
 const envPath = `.env.${process.env.NODE_ENV ?? 'development'}`;
 const envFileExists = fs.existsSync(envPath);
@@ -94,6 +95,7 @@ const envFileExists = fs.existsSync(envPath);
     SeedModule,
     PlansModule,
     InstallationsModule,
+    OdooModule,
   ],
   controllers: [AppController],
   providers: [AppService, EmailService],

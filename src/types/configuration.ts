@@ -67,4 +67,10 @@ export interface Configuration {
       interval: 'month' | 'year';
     };
   };
+
+  odoo: {
+    adminUrl: string;
+    adminUser: string;
+    adminPassword: string;
+  };
 }
