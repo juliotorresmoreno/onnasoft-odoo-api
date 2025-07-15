@@ -8,6 +8,8 @@ import { CreateInstallationDto } from './dto/create-installation.dto';
 import { UpdateInstallationDto } from './dto/update-installation.dto';
 import { UsersService } from '@/resources/users/users.service';
 import { OdooService } from '@/services/odoo/odoo.service';
+import { Configuration } from '@/types/configuration';
+import { BackupGroup } from '@/types/models';
 
 @Injectable()
 export class InstallationsService {
@@ -140,6 +142,53 @@ export class InstallationsService {
       });
     }
     return this.installationRepository.findOne(params);
+  }
+
+  async findBackupsByUserId(userId: string) {
+    const config = this.configService.get('config') as Configuration;
+    const installations = await this.usersService
+      .findAll({
+        where: { id: userId },
+        select: ['id', 'installation', 'createdAt'],
+        relations: ['installation'],
+      })
+      .then(({ data: users }) => users.map((user) => user.installation));
+
+    if (!installations || installations.length === 0) {
+      throw new BadRequestException('No installations found for this user.');
+    }
+
+    const response = await fetch(
+      `${config.backup.url}/backup/${installations[0].database}`,
+    );
+    const backups = (await response.json()) as BackupGroup;
+
+    return backups.files;
+  }
+
+  async downloadBackupByUserId(userId: string, backupId: string) {
+    const config = this.configService.get('config') as Configuration;
+    const installations = await this.usersService
+      .findAll({
+        where: { id: userId },
+        select: ['id', 'installation', 'createdAt'],
+        relations: ['installation'],
+      })
+      .then(({ data: users }) => users.map((user) => user.installation));
+    if (!installations || installations.length === 0) {
+      throw new BadRequestException('No installations found for this user.');
+    }
+
+    const installation = installations[0];
+    const response = await fetch(
+      `${config.backup.url}/download/${installation.database}/${backupId}`,
+    );
+
+    if (!response.ok) {
+      throw new BadRequestException('Failed to download backup');
+    }
+
+    return response.arrayBuffer();
   }
 
   update(id: number, payload: UpdateInstallationDto) {

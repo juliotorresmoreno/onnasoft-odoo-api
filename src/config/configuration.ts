@@ -98,5 +98,9 @@ export default registerAs('config', (): Configuration => {
       adminUser: process.env.ODOO_ADMIN_USER || 'admin',
       adminPassword: process.env.ODOO_ADMIN_PASSWORD!,
     },
+
+    backup: {
+      url: process.env.ODOO_BACKUP_URL || 'http://localhost:4080',
+    },
   };
 });

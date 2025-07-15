@@ -73,4 +73,8 @@ export interface Configuration {
     adminUser: string;
     adminPassword: string;
   };
+
+  backup: {
+    url: string;
+  };
 }

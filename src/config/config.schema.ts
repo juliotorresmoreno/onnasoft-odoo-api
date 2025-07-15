@@ -358,6 +358,13 @@ class EnvironmentVariables {
     message: 'ODOO_ADMIN_PASSWORD must be at least 8 characters long',
   })
   ODOO_ADMIN_PASSWORD: string;
+
+  @IsString()
+  @IsNotEmpty({ message: 'ODOO_BACKUP_URL is required' })
+  @Matches(/^(http(s)?:\/\/)?([\w.-]+)(:\d+)?(\/[\w.-]*)*\/?$/, {
+    message: 'ODOO_BACKUP_URL must be a valid URL',
+  })
+  ODOO_BACKUP_URL: string;
 }
 
 export function validate(config: Record<string, unknown>) {
