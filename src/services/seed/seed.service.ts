@@ -26,6 +26,7 @@ export class SeedService implements OnApplicationBootstrap {
       price: config.plans.starter.price,
       stripePriceId: config.plans.starter.id,
       period: 'month',
+      storage: 10,
       active: true,
     });
 
@@ -36,6 +37,7 @@ export class SeedService implements OnApplicationBootstrap {
       price: config.plans.starter.anualPrice,
       stripePriceId: config.plans.starter.anualId,
       period: 'year',
+      storage: 10,
       active: true,
     });
 
@@ -46,6 +48,7 @@ export class SeedService implements OnApplicationBootstrap {
       price: config.plans.business.price,
       stripePriceId: config.plans.business.id,
       period: 'month',
+      storage: 50,
       active: true,
     });
 
@@ -56,6 +59,7 @@ export class SeedService implements OnApplicationBootstrap {
       price: config.plans.business.anualPrice,
       stripePriceId: config.plans.business.anualId,
       period: 'year',
+      storage: 50,
       active: true,
     });
 
@@ -66,6 +70,7 @@ export class SeedService implements OnApplicationBootstrap {
       price: config.plans.enterprise.price,
       stripePriceId: config.plans.enterprise.id,
       period: 'month',
+      storage: 200,
       active: true,
     });
 
@@ -76,6 +81,7 @@ export class SeedService implements OnApplicationBootstrap {
       price: config.plans.enterprise.anualPrice,
       stripePriceId: config.plans.enterprise.anualId,
       period: 'year',
+      storage: 200,
       active: true,
     });
 

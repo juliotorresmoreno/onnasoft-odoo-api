@@ -33,6 +33,9 @@ export class Plan {
   @Column({ type: 'enum', enum: ['month', 'year'], default: 'month' })
   period: 'month' | 'year';
 
+  @Column({ type: 'int', default: 0 })
+  storage: number;
+
   @OneToMany(() => PlanTranslation, (translation) => translation.plan, {
     cascade: true,
   })
