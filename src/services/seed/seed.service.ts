@@ -5,6 +5,7 @@ import { PlanTranslation } from '@/entities/PlanTranslation';
 import { Repository } from 'typeorm';
 import { ConfigService } from '@nestjs/config';
 import { Configuration } from '@/types/configuration';
+import { StripeService } from '@/resources/stripe/stripe.service';
 
 @Injectable()
 export class SeedService implements OnApplicationBootstrap {
@@ -14,80 +15,92 @@ export class SeedService implements OnApplicationBootstrap {
     private readonly planRepository: Repository<Plan>,
     @InjectRepository(PlanTranslation)
     private readonly planTranslationRepository: Repository<PlanTranslation>,
+    private readonly stripeService: StripeService,
   ) {}
 
   async onApplicationBootstrap() {
     const config = this.configService.get('config') as Configuration;
 
-    const starterPlanMonth = this.planRepository.create({
+    const profesionalPlan = await this.stripeService.getProductPrice(
+      config.plans.professional.id,
+    );
+    const professionalAnualPlan = await this.stripeService.getProductPrice(
+      config.plans.professional.anualId,
+    );
+    const businessPlan = await this.stripeService.getProductPrice(
+      config.plans.business.id,
+    );
+    const businessAnualPlan = await this.stripeService.getProductPrice(
+      config.plans.business.anualId,
+    );
+
+    const profesionalPlanMonth = this.planRepository.create({
       id: '95e60216-624e-42f8-ae7a-10a824b7b00e',
-      name: config.plans.starter.name,
-      description: 'For individuals and freelancers (Monthly)',
-      price: config.plans.starter.price,
-      stripePriceId: config.plans.starter.id,
+      name: profesionalPlan.metadata.name,
+      description: profesionalPlan.metadata.description,
+      price: (profesionalPlan.unit_amount as number) / 100,
+      stripePriceId: config.plans.professional.id,
       period: 'month',
-      storage: 10,
+      storage: 50,
       active: true,
     });
 
-    const starterPlanYear = this.planRepository.create({
+    const profesionalPlanYear = this.planRepository.create({
       id: '5c127079-e577-4780-bb6e-cb1872745807',
-      name: config.plans.starter.name,
-      description: 'For individuals and freelancers (Annually)',
-      price: config.plans.starter.anualPrice,
-      stripePriceId: config.plans.starter.anualId,
+      name: professionalAnualPlan.metadata.name,
+      description: professionalAnualPlan.metadata.description,
+      price: (professionalAnualPlan.unit_amount as number) / 100,
+      stripePriceId: config.plans.professional.anualId,
       period: 'year',
-      storage: 10,
+      storage: 50,
       active: true,
     });
 
     const businessPlanMonth = this.planRepository.create({
       id: '305ca76f-b719-480e-bccd-3847fa6766d1',
-      name: config.plans.business.name,
-      description: 'For small and medium businesses (Monthly)',
-      price: config.plans.business.price,
+      name: businessPlan.metadata.name,
+      description: businessPlan.metadata.description,
+      price: (businessPlan.unit_amount as number) / 100,
       stripePriceId: config.plans.business.id,
       period: 'month',
-      storage: 50,
+      storage: 200,
       active: true,
     });
 
     const businessPlanYear = this.planRepository.create({
       id: '023b516d-94bb-43b4-b945-a5ef04e52b48',
-      name: config.plans.business.name,
-      description: 'For small and medium businesses (Annually)',
-      price: config.plans.business.anualPrice,
+      name: businessAnualPlan.metadata.name,
+      description: businessAnualPlan.metadata.description,
+      price: (businessAnualPlan.unit_amount as number) / 100,
       stripePriceId: config.plans.business.anualId,
       period: 'year',
-      storage: 50,
+      storage: 200,
       active: true,
     });
 
     const enterprisePlanMonth = this.planRepository.create({
       id: '70c5df85-080d-49a1-80af-62903ee8e1d0',
-      name: config.plans.enterprise.name,
+      name: 'Enterprise',
       description: 'For large enterprises and organizations (Monthly)',
-      price: config.plans.enterprise.price,
-      stripePriceId: config.plans.enterprise.id,
+      price: 0,
       period: 'month',
-      storage: 200,
-      active: true,
+      storage: 0,
+      active: false,
     });
 
     const enterprisePlanYear = this.planRepository.create({
       id: 'e5ab91ec-65ba-42a3-bc07-c9fbcdb945b9',
-      name: config.plans.enterprise.name,
+      name: 'Enterprise',
       description: 'For large enterprises and organizations (Annually)',
-      price: config.plans.enterprise.anualPrice,
-      stripePriceId: config.plans.enterprise.anualId,
+      price: 0,
       period: 'year',
-      storage: 200,
-      active: true,
+      storage: 0,
+      active: false,
     });
 
     await this.planRepository.save([
-      starterPlanMonth,
-      starterPlanYear,
+      profesionalPlanMonth,
+      profesionalPlanYear,
       businessPlanMonth,
       businessPlanYear,
       enterprisePlanMonth,
@@ -103,11 +116,11 @@ export class SeedService implements OnApplicationBootstrap {
         features: [
           'Essential Odoo Modules (CRM, Sales, Basic Accounting)',
           'Standard Email/Chat Support (Mon-Fri, 9 AM - 5 PM COL)',
-          '10 GB Storage',
+          '50 GB Storage',
           'Online Knowledge Base & Video Tutorials',
           'Self-guided Implementation',
         ],
-        plan: starterPlanMonth,
+        plan: profesionalPlanMonth,
       },
       {
         id: '4bbbd0e3-b21a-4e79-8736-88a2d34b93c5',
@@ -117,11 +130,11 @@ export class SeedService implements OnApplicationBootstrap {
         features: [
           'Módulos Esenciales de Odoo (CRM, Ventas, Contabilidad Básica)',
           'Soporte Estándar por Email/Chat (Lun-Vie, 9 AM - 5 PM COL)',
-          '10 GB de Almacenamiento',
+          '50 GB de Almacenamiento',
           'Base de Conocimiento en Línea y Tutoriales en Video',
           'Auto-implementación Guiada',
         ],
-        plan: starterPlanMonth,
+        plan: profesionalPlanMonth,
       },
       {
         id: '050dab40-e9d0-4bb2-88f2-24e5f9e613fe',
@@ -131,11 +144,11 @@ export class SeedService implements OnApplicationBootstrap {
         features: [
           'Essential Odoo Modules (CRM, Sales, Basic Accounting)',
           'Standard Email/Chat Support (Mon-Fri, 9 AM - 5 PM COL)',
-          '10 GB Storage',
+          '50 GB Storage',
           'Online Knowledge Base & Video Tutorials',
           'Self-guided Implementation',
         ],
-        plan: starterPlanYear,
+        plan: profesionalPlanYear,
       },
       {
         id: '112dfd35-d59c-4fea-a4b5-e55b1d6a0438',
@@ -145,11 +158,11 @@ export class SeedService implements OnApplicationBootstrap {
         features: [
           'Módulos Esenciales de Odoo (CRM, Ventas, Contabilidad Básica)',
           'Soporte Estándar por Email/Chat (Lun-Vie, 9 AM - 5 PM COL)',
-          '10 GB de Almacenamiento',
+          '50 GB de Almacenamiento',
           'Base de Conocimiento en Línea y Tutoriales en Video',
           'Auto-implementación Guiada',
         ],
-        plan: starterPlanYear,
+        plan: profesionalPlanYear,
       },
 
       {
@@ -163,7 +176,7 @@ export class SeedService implements OnApplicationBootstrap {
           'Project Management & Timesheets',
           'Basic HR (Employees) & Marketing Automation',
           'Priority Email/Chat Support (Mon-Fri, 8 AM - 6 PM COL)',
-          '50 GB Storage',
+          '200 GB Storage',
           'Exclusive Webinars & Group Q&A Sessions',
           'Assistance with Initial Configuration',
         ],
@@ -180,7 +193,7 @@ export class SeedService implements OnApplicationBootstrap {
           'Gestión de Proyectos y Hojas de Tiempo',
           'RRHH Básico (Empleados) y Automatización de Marketing',
           'Soporte Prioritario por Email/Chat (Lun-Vie, 8 AM - 6 PM COL)',
-          '50 GB de Almacenamiento',
+          '200 GB de Almacenamiento',
           'Webinars Exclusivos y Sesiones Grupales de Preguntas y Respuestas',
           'Asistencia en la Configuración Inicial',
         ],
@@ -197,7 +210,7 @@ export class SeedService implements OnApplicationBootstrap {
           'Project Management & Timesheets',
           'Basic HR (Employees) & Marketing Automation',
           'Priority Email/Chat Support (Mon-Fri, 8 AM - 6 PM COL)',
-          '50 GB Storage',
+          '200 GB Storage',
           'Exclusive Webinars & Group Q&A Sessions',
           'Assistance with Initial Configuration',
         ],
@@ -214,7 +227,7 @@ export class SeedService implements OnApplicationBootstrap {
           'Gestión de Proyectos y Hojas de Tiempo',
           'RRHH Básico (Empleados) y Automatización de Marketing',
           'Soporte Prioritario por Email/Chat (Lun-Vie, 8 AM - 6 PM COL)',
-          '50 GB de Almacenamiento',
+          '200 GB de Almacenamiento',
           'Webinars Exclusivos y Sesiones Grupales de Preguntas y Respuestas',
           'Asistencia en la Configuración Inicial',
         ],
@@ -228,17 +241,15 @@ export class SeedService implements OnApplicationBootstrap {
           'The complete solution for large enterprises requiring expert implementation and comprehensive features.',
         features: [
           'All Business Plan Features',
-          'Manufacturing (MRP) & Quality Control',
-          'Advanced Point of Sale (PoS)',
-          'Full HR (Payroll, Recruitment) & Multi-Company Support',
           'Premium 24/7 Support (Email/Chat/Phone)',
           'Dedicated Account Manager & Strict SLAs',
-          '200 GB Storage (Scalable)',
-          'Personalized Consulting & Training Hours (e.g., 10-20 hrs/month)',
+          'Custom Storage Allocation (Scalable as Needed)',
+          'Personalized Consulting & Training Hours',
           'Direct Implementation Assistance & Data Migration',
           'Live Team Training Sessions',
           'Custom Module Configuration & Workflow Adjustment',
           'Staging Environment for Validation',
+          'Additional Integrations & Enterprise-Specific Needs',
         ],
         plan: enterprisePlanMonth,
       },
@@ -249,17 +260,15 @@ export class SeedService implements OnApplicationBootstrap {
           'La solución completa para grandes empresas que requieren implementación experta y funcionalidades integrales.',
         features: [
           'Todas las Características del Plan Empresarial',
-          'Fabricación (MRP) y Control de Calidad',
-          'Punto de Venta (PoS) Avanzado',
-          'RRHH Completo (Nómina, Reclutamiento) y Soporte Multi-Compañía',
           'Soporte Premium 24/7 (Email/Chat/Teléfono)',
           'Gestor de Cuenta Dedicado y SLAs Estrictos',
-          '200 GB de Almacenamiento (Escalable)',
-          'Horas de Consultoría y Capacitación Personalizadas (ej. 10-20 hrs/mes)',
+          'Almacenamiento Personalizado (Escalable según necesidades)',
+          'Horas de Consultoría y Capacitación Personalizadas',
           'Asistencia Directa en la Implementación y Migración de Datos',
           'Sesiones de Capacitación en Vivo para Equipos',
           'Configuración Personalizada de Módulos y Ajuste de Flujos de Trabajo',
           'Entorno de Pruebas (Staging) para Validación',
+          'Integraciones Adicionales y Requisitos Específicos para Empresas',
         ],
         plan: enterprisePlanMonth,
       },
@@ -267,20 +276,18 @@ export class SeedService implements OnApplicationBootstrap {
         id: '856af024-6eb3-4390-b261-08b3299bd496',
         locale: 'en',
         description:
-          'The complete solution for large enterprises requiring expert implementation and comprehensive features.',
+          'Tailored for large enterprises. This plan is negotiated individually and includes custom resources, consulting, and implementation.',
         features: [
           'All Business Plan Features',
-          'Manufacturing (MRP) & Quality Control',
-          'Advanced Point of Sale (PoS)',
-          'Full HR (Payroll, Recruitment) & Multi-Company Support',
           'Premium 24/7 Support (Email/Chat/Phone)',
           'Dedicated Account Manager & Strict SLAs',
-          '200 GB Storage (Scalable)',
-          'Personalized Consulting & Training Hours (e.g., 10-20 hrs/month)',
+          'Custom Storage Allocation (Scalable as Needed)',
+          'Personalized Consulting & Training Hours',
           'Direct Implementation Assistance & Data Migration',
           'Live Team Training Sessions',
           'Custom Module Configuration & Workflow Adjustment',
           'Staging Environment for Validation',
+          'Additional Integrations & Enterprise-Specific Needs',
         ],
         plan: enterprisePlanYear,
       },
@@ -288,20 +295,18 @@ export class SeedService implements OnApplicationBootstrap {
         id: '7b001572-2f7a-4b03-a126-c6d623834e36',
         locale: 'es',
         description:
-          'La solución completa para grandes empresas que requieren implementación experta y funcionalidades integrales.',
+          'Diseñado para grandes empresas. Este plan se negocia individualmente e incluye recursos personalizados, consultoría y asistencia en implementación.',
         features: [
           'Todas las Características del Plan Empresarial',
-          'Fabricación (MRP) y Control de Calidad',
-          'Punto de Venta (PoS) Avanzado',
-          'RRHH Completo (Nómina, Reclutamiento) y Soporte Multi-Compañía',
           'Soporte Premium 24/7 (Email/Chat/Teléfono)',
           'Gestor de Cuenta Dedicado y SLAs Estrictos',
-          '200 GB de Almacenamiento (Escalable)',
-          'Horas de Consultoría y Capacitación Personalizadas (ej. 10-20 hrs/mes)',
+          'Almacenamiento Personalizado (Escalable según necesidades)',
+          'Horas de Consultoría y Capacitación Personalizadas',
           'Asistencia Directa en la Implementación y Migración de Datos',
           'Sesiones de Capacitación en Vivo para Equipos',
           'Configuración Personalizada de Módulos y Ajuste de Flujos de Trabajo',
           'Entorno de Pruebas (Staging) para Validación',
+          'Integraciones Adicionales y Requisitos Específicos para Empresas',
         ],
         plan: enterprisePlanYear,
       },

@@ -64,14 +64,17 @@ export default registerAs('config', (): Configuration => {
     },
 
     plans: {
-      starter: {
-        id: process.env.PLAN_STARTER_ID || 'starter',
-        anualId: process.env.PLAN_STARTER_ANUAL_ID || 'starter_anual',
-        name: process.env.PLAN_STARTER_NAME || 'Starter Plan',
-        price: parseFloat(process.env.PLAN_STARTER_PRICE || '0'),
-        anualPrice: parseFloat(process.env.PLAN_STARTER_ANUAL_PRICE || '0'),
+      professional: {
+        id: process.env.PLAN_PROFESSIONAL_ID || 'professional',
+        anualId: process.env.PLAN_PROFESSIONAL_ANUAL_ID || 'professional_anual',
+        name: process.env.PLAN_PROFESSIONAL_NAME || 'Professional Plan',
+        price: parseFloat(process.env.PLAN_PROFESSIONAL_PRICE || '0'),
+        anualPrice: parseFloat(
+          process.env.PLAN_PROFESSIONAL_ANUAL_PRICE || '0',
+        ),
         interval:
-          (process.env.PLAN_STARTER_INTERVAL as 'month' | 'year') || 'month',
+          (process.env.PLAN_PROFESSIONAL_INTERVAL as 'month' | 'year') ||
+          'month',
       },
       business: {
         id: process.env.PLAN_BUSINESS_ID || 'business',
@@ -81,15 +84,6 @@ export default registerAs('config', (): Configuration => {
         anualPrice: parseFloat(process.env.PLAN_BUSINESS_ANUAL_PRICE || '0'),
         interval:
           (process.env.PLAN_BUSINESS_INTERVAL as 'month' | 'year') || 'month',
-      },
-      enterprise: {
-        id: process.env.PLAN_ENTERPRISE_ID || 'enterprise',
-        anualId: process.env.PLAN_ENTERPRISE_ANUAL_ID || 'enterprise_anual',
-        name: process.env.PLAN_ENTERPRISE_NAME || 'Enterprise Plan',
-        price: parseFloat(process.env.PLAN_ENTERPRISE_PRICE || '0'),
-        anualPrice: parseFloat(process.env.PLAN_ENTERPRISE_ANUAL_PRICE || '0'),
-        interval:
-          (process.env.PLAN_ENTERPRISE_INTERVAL as 'month' | 'year') || 'month',
       },
     },
 

@@ -24,7 +24,13 @@ export class Plan {
   @Column({ type: 'decimal', precision: 10, scale: 2 })
   price: number;
 
-  @Column({ type: 'varchar', length: 100, unique: true, select: false })
+  @Column({
+    type: 'varchar',
+    length: 100,
+    unique: true,
+    select: false,
+    nullable: true,
+  })
   stripePriceId: string;
 
   @Column({ default: true })

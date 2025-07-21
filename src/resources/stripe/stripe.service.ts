@@ -37,6 +37,10 @@ export class StripeService {
     });
   }
 
+  async getProductPrice(priceId: string): Promise<Stripe.Price> {
+    return this.stripe.prices.retrieve(priceId);
+  }
+
   async subscribeToPlan(
     userId: string,
     planId: string,

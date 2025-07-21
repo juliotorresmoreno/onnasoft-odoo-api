@@ -17,10 +17,14 @@ import { User } from '@/entities/User';
 import { ValidationPipe } from '@/pipes/validation.pipe';
 import { UpdatePasswordDto } from './dto/update-password.dto';
 import { SelectPlanDto } from './dto/select-plan.dto';
+import { PlansService } from '../plans/plans.service';
 
 @Controller('account')
 export class AccountController {
-  constructor(private readonly accountService: AccountService) {}
+  constructor(
+    private readonly accountService: AccountService,
+    private readonly plansService: PlansService,
+  ) {}
 
   @SetMetadata('roles', [Role.User, Role.Admin])
   @Post('select-plan')
@@ -28,6 +32,29 @@ export class AccountController {
     @Body(new ValidationPipe()) payload: SelectPlanDto,
     @Request() req: Express.Request & { user: User },
   ) {
+    const plan = await this.plansService.findOne({
+      where: { id: payload.planId },
+      select: ['id', 'name', 'active'],
+    });
+    if (!plan) {
+      throw new UnauthorizedException('Plan not found');
+    }
+
+    if (!plan.active && req.user.role !== Role.Admin) {
+      throw new UnauthorizedException('Plan is not active');
+    }
+
+    const user = await this.accountService.findOne({
+      where: { id: req.user.id },
+      relations: ['installation'],
+    });
+
+    if (user?.installation) {
+      throw new UnauthorizedException(
+        'You cannot change the plan while having an active installation',
+      );
+    }
+
     await this.accountService.selectPlan(req.user.id, payload);
 
     return {
@@ -45,7 +72,7 @@ export class AccountController {
 
     return this.accountService.findOne({
       where: { id: req.user.id },
-      relations: ['plan', 'installation'],
+      relations: ['plan', 'installation', 'company'],
     });
   }
 

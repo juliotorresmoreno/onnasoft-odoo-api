@@ -86,9 +86,14 @@ export class StripeController {
 
   @SetMetadata('roles', [Role.User, Role.Admin])
   @Post('create-setup-intent')
-  async createSetupIntent(@Res() res: Response, @Body('email') email: string) {
+  async createSetupIntent(
+    @Res() res: Response,
+    @Req() req: Express.Request & { user: User },
+  ) {
     try {
-      const setupIntent = await this.stripeService.createSetupIntent(email);
+      const setupIntent = await this.stripeService.createSetupIntent(
+        req.user.email,
+      );
       return res.status(200).json(setupIntent);
     } catch (error) {
       return res.status(500).json({ error: error.message });

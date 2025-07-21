@@ -55,7 +55,7 @@ export class User {
   @Column({ nullable: true, type: 'varchar', select: false })
   stripeCustomerId: string | null;
 
-  @Column({ nullable: true, type: 'varchar', select: false })
+  @Column({ nullable: true, type: 'varchar' })
   defaultPaymentMethodId: string | null;
 
   @Column({ nullable: true, type: 'varchar', select: false })
