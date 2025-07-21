@@ -36,6 +36,7 @@ export class InstallationsService {
         'stripeCustomerId',
         'stripeSubscriptionId',
       ],
+      relations: ['company'],
     });
 
     if (!user) {
@@ -81,17 +82,11 @@ export class InstallationsService {
       .then(async (installation) => {
         try {
           if (payload.edition === 'community') {
-            console.log({
-              name: payload.database,
-              password: payload.password,
-              lang: `${user.language}_US`,
-              phone: user.phone ?? '',
-            });
-
             await this.odooService.createDatabase({
               login: user.email,
               name: payload.database,
               password: payload.password,
+              countryCode: user.company?.country ?? undefined,
               lang: `${user.language}_US`,
               phone: user.phone ?? '',
             });
