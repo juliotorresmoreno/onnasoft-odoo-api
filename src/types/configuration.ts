@@ -45,18 +45,12 @@ export interface Configuration {
     professional: {
       id: string;
       anualId: string;
-      name: string;
-      price: number;
-      anualPrice: number;
-      interval: 'month' | 'year';
+      currency: string;
     };
     business: {
       id: string;
       anualId: string;
-      name: string;
-      price: number;
-      anualPrice?: number;
-      interval: 'month' | 'year';
+      currency: string;
     };
   };
 

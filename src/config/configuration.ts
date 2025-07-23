@@ -67,23 +67,12 @@ export default registerAs('config', (): Configuration => {
       professional: {
         id: process.env.PLAN_PROFESSIONAL_ID || 'professional',
         anualId: process.env.PLAN_PROFESSIONAL_ANUAL_ID || 'professional_anual',
-        name: process.env.PLAN_PROFESSIONAL_NAME || 'Professional Plan',
-        price: parseFloat(process.env.PLAN_PROFESSIONAL_PRICE || '0'),
-        anualPrice: parseFloat(
-          process.env.PLAN_PROFESSIONAL_ANUAL_PRICE || '0',
-        ),
-        interval:
-          (process.env.PLAN_PROFESSIONAL_INTERVAL as 'month' | 'year') ||
-          'month',
+        currency: process.env.PLAN_PROFESSIONAL_CURRENCY || 'USD',
       },
       business: {
         id: process.env.PLAN_BUSINESS_ID || 'business',
         anualId: process.env.PLAN_BUSINESS_ANUAL_ID || 'business_anual',
-        name: process.env.PLAN_BUSINESS_NAME || 'Business Plan',
-        price: parseFloat(process.env.PLAN_BUSINESS_PRICE || '0'),
-        anualPrice: parseFloat(process.env.PLAN_BUSINESS_ANUAL_PRICE || '0'),
-        interval:
-          (process.env.PLAN_BUSINESS_INTERVAL as 'month' | 'year') || 'month',
+        currency: process.env.PLAN_BUSINESS_CURRENCY || 'USD',
       },
     },
 

@@ -248,62 +248,16 @@ class EnvironmentVariables {
   PLAN_PROFESSIONAL_ID: string;
 
   @IsString()
-  @IsNotEmpty({ message: 'PLAN_PROFESSIONAL_NAME is required' })
-  PLAN_PROFESSIONAL_NAME: string;
-
-  @IsNumberString()
-  @Matches(/^\d+(\.\d{1,2})$/, {
-    message:
-      'PLAN_PROFESSIONAL_PRICE must be a valid number with up to 2 decimal places',
-  })
-  PLAN_PROFESSIONAL_PRICE: string;
-
-  @IsIn(['month', 'year'], {
-    message: 'PLAN_PROFESSIONAL_INTERVAL must be either month or year',
-  })
-  PLAN_PROFESSIONAL_INTERVAL: string;
-
-  @IsString()
   @IsNotEmpty({ message: 'PLAN_BUSINESS_ID is required' })
   PLAN_BUSINESS_ID: string;
-
-  @IsString()
-  @IsNotEmpty({ message: 'PLAN_BUSINESS_NAME is required' })
-  PLAN_BUSINESS_NAME: string;
-
-  @IsNumberString()
-  @Matches(/^\d+(\.\d{1,2})$/, {
-    message:
-      'PLAN_BUSINESS_PRICE must be a valid number with up to 2 decimal places',
-  })
-  PLAN_BUSINESS_PRICE: string;
-
-  @IsIn(['month', 'year'], {
-    message: 'PLAN_BUSINESS_INTERVAL must be either month or year',
-  })
-  PLAN_BUSINESS_INTERVAL: string;
 
   @IsString()
   @IsNotEmpty({ message: 'PLAN_PROFESSIONAL_ANUAL_ID is required' })
   PLAN_PROFESSIONAL_ANUAL_ID: string;
 
-  @IsNumberString()
-  @Matches(/^\d+(\.\d{1,2})$/, {
-    message:
-      'PLAN_PROFESSIONAL_ANUAL_PRICE must be a valid number with up to 2 decimal places',
-  })
-  PLAN_PROFESSIONAL_ANUAL_PRICE: string;
-
   @IsString()
   @IsNotEmpty({ message: 'PLAN_BUSINESS_ANUAL_ID is required' })
   PLAN_BUSINESS_ANUAL_ID: string;
-
-  @IsNumberString()
-  @Matches(/^\d+(\.\d{1,2})$/, {
-    message:
-      'PLAN_BUSINESS_ANUAL_PRICE must be a valid number with up to 2 decimal places',
-  })
-  PLAN_BUSINESS_ANUAL_PRICE: string;
 
   @IsString()
   @IsNotEmpty({ message: 'STRIPE_PRODUCT_ID is required' })
