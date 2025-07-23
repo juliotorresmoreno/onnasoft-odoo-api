@@ -124,7 +124,11 @@ export class EmailService {
     const url = `${config.baseUrl}/reset-password?token=${token}`;
     const template = this.templates[language].passwordReset;
     const html = template({
-      reset_url: url,
+      reset_password_url: url,
+      currentYear: new Date().getFullYear(),
+      website_url: config.websiteUrl,
+      privacy_url: config.privacyUrl,
+      terms_url: config.termsUrl,
     });
 
     await this.strategy.send(to, 'Reset your password', html);
