@@ -6,10 +6,3 @@ export interface Backup {
   size: number;
   createdAt: string;
 }
-
-export type BackupGroup = {
-  dbname: string;
-  files: Backup[];
-  ignore: string[];
-  output: string;
-};

@@ -9,7 +9,7 @@ import { UpdateInstallationDto } from './dto/update-installation.dto';
 import { UsersService } from '@/resources/users/users.service';
 import { OdooService } from '@/services/odoo/odoo.service';
 import { Configuration } from '@/types/configuration';
-import { BackupGroup } from '@/types/models';
+import { Backup } from '@/types/models';
 
 @Injectable()
 export class InstallationsService {
@@ -36,7 +36,7 @@ export class InstallationsService {
         'stripeCustomerId',
         'stripeSubscriptionId',
       ],
-      relations: ['company'],
+      relations: ['company', 'plan'],
     });
 
     if (!user) {
@@ -70,6 +70,13 @@ export class InstallationsService {
       );
     }
 
+    const plan = user.plan;
+    if (!plan) {
+      throw new BadRequestException(
+        'User does not have a valid plan. Please subscribe to a plan before creating an installation.',
+      );
+    }
+
     return this.installationRepository
       .save({
         ...payload,
@@ -90,6 +97,8 @@ export class InstallationsService {
               lang: `${user.language}_US`,
               phone: user.phone ?? '',
             });
+
+            await this.odooService.createVPC(payload.database, plan.storage);
 
             await this.installationRepository.update(installation.id, {
               status: 'active',
@@ -156,9 +165,9 @@ export class InstallationsService {
     const response = await fetch(
       `${config.backup.url}/backup/${installations[0].database}`,
     );
-    const backups = (await response.json()) as BackupGroup;
+    const backups = (await response.json().catch(() => [])) as Backup[];
 
-    return backups.files;
+    return backups;
   }
 
   async downloadBackupByUserId(userId: string, backupId: string) {

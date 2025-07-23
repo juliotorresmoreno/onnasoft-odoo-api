@@ -11,6 +11,15 @@ interface CreateDatabaseDto {
   phone?: string;
 }
 
+interface CreateDatabaseResponse {
+  status: 'success' | 'error';
+  message?: string;
+}
+
+interface CreateVPCResponse {
+  message: string;
+}
+
 @Injectable()
 export class OdooService {
   constructor(private readonly configService: ConfigService) {}
@@ -24,8 +33,9 @@ export class OdooService {
     phone = '',
   }: CreateDatabaseDto): Promise<any> {
     const config = this.configService.get('config') as Configuration;
+    const adminUrl = config.odoo.adminUrl;
 
-    const url = new URL(`${config.odoo.adminUrl}/web/database/create`);
+    const url = new URL(`${adminUrl}/onnasoft_admin/database/create`);
     const payload = {
       master_pwd: config.odoo.adminPassword,
       login: login,
@@ -40,16 +50,55 @@ export class OdooService {
       payload['country_code'] = countryCode;
     }
 
+    console.log('Creating database with payload:', payload);
+
     const response = await fetch(url.toString(), {
       method: 'POST',
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
       },
       body: new URLSearchParams(payload),
+    }).catch((error) => {
+      console.error('Error creating database:', error);
+      throw error;
+    });
+    console.log('Response status:', response.status);
+
+    const result = (await response.json().catch(() => ({
+      message: '',
+    }))) as CreateDatabaseResponse;
+
+    console.log('Create database response:', result);
+
+    if (!response.ok) {
+      throw new Error(result.message || response.statusText);
+    }
+
+    return result;
+  }
+
+  async createVPC(databaseName: string, size: number) {
+    const config = this.configService.get('config') as Configuration;
+    const backupUrl = config.backup.url;
+
+    const url = new URL(`${backupUrl}/configure`);
+    const payload = {
+      dbname: databaseName,
+      size,
+    };
+
+    const response = await fetch(url.toString(), {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(payload),
     });
 
     if (!response.ok) {
-      throw new Error(`Failed to create database: ${response.statusText}`);
+      throw new Error(`Failed to create backup: ${response.statusText}`);
     }
+
+    return (await response.json()) as CreateVPCResponse;
   }
 }
