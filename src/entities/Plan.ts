@@ -36,6 +36,9 @@ export class Plan {
   @Column({ default: true })
   active: boolean;
 
+  @Column({ default: false })
+  hidden: boolean;
+
   @Column({ type: 'enum', enum: ['month', 'year'], default: 'month' })
   period: 'month' | 'year';
 

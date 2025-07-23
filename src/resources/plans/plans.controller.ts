@@ -36,7 +36,7 @@ export class PlansController {
   @Public()
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.plansService.findOne({ where: { id } });
+    return this.plansService.findOne({ where: { id, hidden: false } });
   }
 
   @SetMetadata('roles', [Role.Admin])
