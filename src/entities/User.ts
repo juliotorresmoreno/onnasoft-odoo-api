@@ -77,6 +77,9 @@ export class User {
   })
   language: Language;
 
+  @Column({ type: 'int', default: 0 })
+  storage: number;
+
   @Column({ type: 'varchar', length: 100, default: 'UTC' })
   timezone: string;
 

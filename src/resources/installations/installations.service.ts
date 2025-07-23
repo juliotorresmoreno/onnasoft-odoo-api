@@ -33,6 +33,7 @@ export class InstallationsService {
         'phone',
         'email',
         'language',
+        'storage',
         'stripeCustomerId',
         'stripeSubscriptionId',
       ],
@@ -98,7 +99,10 @@ export class InstallationsService {
               phone: user.phone ?? '',
             });
 
-            await this.odooService.createVPC(payload.database, plan.storage);
+            await this.odooService.createVPC(
+              payload.database,
+              plan.storage || user.storage,
+            );
 
             await this.installationRepository.update(installation.id, {
               status: 'active',
@@ -106,14 +110,16 @@ export class InstallationsService {
           }
 
           return installation;
-        } catch {
+        } catch (error) {
+          console.error('Error creating Odoo database:', error);
           await this.installationRepository.delete(installation.id);
           throw new BadRequestException(
             'Failed to create Odoo database. Please check your configuration.',
           );
         }
       })
-      .catch(() => {
+      .catch((error) => {
+        console.error('Error creating installation:', error);
         throw new BadRequestException('Error creating installation');
       });
   }

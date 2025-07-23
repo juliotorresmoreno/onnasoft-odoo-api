@@ -96,6 +96,7 @@ export class OdooService {
     });
 
     if (!response.ok) {
+      console.log(payload);
       throw new Error(`Failed to create backup: ${response.statusText}`);
     }
 
