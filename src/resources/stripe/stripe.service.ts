@@ -20,7 +20,6 @@ export class StripeService {
     }
 
     this.stripe = new Stripe(stripeConf.secretKey, {
-      apiVersion: '2025-06-30.basil',
       appInfo: {
         name: 'OnnaSoft Odoo API',
         version: '1.0.0',

@@ -5,9 +5,9 @@ import {
   Patch,
   Delete,
   SetMetadata,
-  Request,
   UnauthorizedException,
   Post,
+  Req,
 } from '@nestjs/common';
 import { AccountService } from './account.service';
 import { UpdateAccountDto } from './dto/update-account.dto';
@@ -18,6 +18,7 @@ import { ValidationPipe } from '@/pipes/validation.pipe';
 import { UpdatePasswordDto } from './dto/update-password.dto';
 import { SelectPlanDto } from './dto/select-plan.dto';
 import { PlansService } from '../plans/plans.service';
+import { Request } from 'express';
 
 @Controller('account')
 export class AccountController {
@@ -30,7 +31,7 @@ export class AccountController {
   @Post('select-plan')
   async select(
     @Body(new ValidationPipe()) payload: SelectPlanDto,
-    @Request() req: Express.Request & { user: User },
+    @Req() req: Request & { user: User },
   ) {
     const plan = await this.plansService.findOne({
       where: { id: payload.planId },
@@ -65,7 +66,7 @@ export class AccountController {
   @SetMetadata('roles', [Role.User, Role.Admin])
   @ApiOperation({ summary: 'Get current user account details' })
   @Get('me')
-  findMe(@Request() req: Express.Request & { user: User }) {
+  findMe(@Req() req: Request & { user: User }) {
     if (!req.user || !req.user.id) {
       throw new UnauthorizedException('User not authenticated');
     }
@@ -81,7 +82,7 @@ export class AccountController {
   @ApiBody({ type: UpdateAccountDto })
   @Patch('/me')
   async update(
-    @Request() req: Express.Request & { user: User },
+    @Req() req: Request & { user: User },
     @Body(new ValidationPipe()) payload: UpdateAccountDto,
   ) {
     if (!req.user || !req.user.id) {
@@ -96,7 +97,7 @@ export class AccountController {
   @ApiBody({ type: UpdatePasswordDto })
   @Patch('/password')
   async password(
-    @Request() req: Express.Request & { user: User },
+    @Req() req: Request & { user: User },
     @Body(new ValidationPipe()) payload: UpdatePasswordDto,
   ) {
     if (!req.user || !req.user.id) {
@@ -108,7 +109,7 @@ export class AccountController {
 
   @SetMetadata('roles', [Role.User])
   @Delete()
-  remove(@Request() req: Express.Request & { user: User }) {
+  remove(@Req() req: Request & { user: User }) {
     if (!req.user || !req.user.id) {
       throw new UnauthorizedException('User not authenticated');
     }

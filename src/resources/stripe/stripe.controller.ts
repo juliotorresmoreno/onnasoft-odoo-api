@@ -11,7 +11,7 @@ import {
   Headers,
   RawBodyRequest,
 } from '@nestjs/common';
-import { Response } from 'express';
+import { Request, Response } from 'express';
 import { StripeService } from './stripe.service';
 import { Public } from '@/utils/secure';
 import { User } from '@/entities/User';
@@ -45,7 +45,7 @@ export class StripeController {
       throw new BadRequestException('Request body is required');
     }
 
-    if (!config.stripe || !config.stripe.webhookSecret) {
+    if (!config.stripe.webhookSecret) {
       throw new BadRequestException('Stripe webhook secret is not configured');
     }
 
@@ -70,7 +70,7 @@ export class StripeController {
   @Post('attach-payment-method')
   async attachPaymentMethod(
     @Res() res: Response,
-    @Req() req: Express.Request & { user: User },
+    @Req() req: Request & { user: User },
     @Body('paymentMethodId') paymentMethodId: string,
   ) {
     if (!paymentMethodId) {
@@ -88,7 +88,7 @@ export class StripeController {
   @Post('create-setup-intent')
   async createSetupIntent(
     @Res() res: Response,
-    @Req() req: Express.Request & { user: User },
+    @Req() req: Request & { user: User },
   ) {
     try {
       const setupIntent = await this.stripeService.createSetupIntent(
@@ -104,7 +104,7 @@ export class StripeController {
   @Get('payment-method')
   async getPaymentMethods(
     @Res() res: Response,
-    @Req() req: Express.Request & { user: User },
+    @Req() req: Request & { user: User },
   ) {
     try {
       const paymentMethods = await this.stripeService.getPaymentMethod(
@@ -124,7 +124,7 @@ export class StripeController {
   @Get('billings')
   async getBillings(
     @Res() res: Response,
-    @Req() req: Express.Request & { user: User },
+    @Req() req: Request & { user: User },
   ) {
     try {
       const billings = await this.stripeService.getBillings(req.user.id);

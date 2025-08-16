@@ -4,9 +4,9 @@ import {
   Body,
   HttpStatus,
   UseGuards,
-  Request,
   Get,
   SetMetadata,
+  Req,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { RegisterAuthDto } from './dto/register-auth.dto';
@@ -24,6 +24,7 @@ import { LoginAuthDto } from './dto/login-auth.dto';
 import { ForgotPasswordAuthDto } from './dto/forgot-password-auth.dto';
 import { Public } from '@/utils/secure';
 import { Role } from '@/types/role';
+import { Request } from 'express';
 
 class RegisterResponseDto {
   @ApiResponseProperty()
@@ -80,7 +81,7 @@ export class AuthController {
   @ApiBody({ type: LoginAuthDto })
   @Post('/login')
   login(
-    @Request() req: Express.Request & { user: User },
+    @Req() req: Request & { user: User },
     @Body('rememberMe') rememberMe: boolean = false,
   ) {
     return this.authService.login(req.user, rememberMe);
@@ -103,7 +104,7 @@ export class AuthController {
     description: 'Validation error',
   })
   @Get('/refresh')
-  refresh(@Request() req: Express.Request & { user: User }) {
+  refresh(@Req() req: Request & { user: User }) {
     return this.authService.refreshToken(req.user);
   }
 
@@ -212,7 +213,7 @@ export class AuthController {
     description: 'Validation error',
   })
   @ApiResponseProperty({ type: User })
-  async me(@Request() req: Express.Request & { user: User }) {
+  async me(@Req() req: Request & { user: User }) {
     return {
       user: req.user,
       message: 'User session retrieved successfully',

@@ -5,10 +5,10 @@ import {
   Param,
   Delete,
   SetMetadata,
-  Request,
   InternalServerErrorException,
   UnauthorizedException,
   Query,
+  Req,
 } from '@nestjs/common';
 import { NotificationsService } from './notifications.service';
 import { IsNull } from 'typeorm';
@@ -16,6 +16,7 @@ import { Role } from '@/types/role';
 import { User } from '@/entities/User';
 import { buildFindManyOptions, QueryParams } from '@/utils/query';
 import { Notification } from '@/entities/Notification';
+import { Request } from 'express';
 
 @Controller('notifications')
 export class NotificationsController {
@@ -30,11 +31,8 @@ export class NotificationsController {
 
   @SetMetadata('roles', [Role.User, Role.Admin])
   @Patch(':id/read')
-  read(
-    @Request() req: Express.Request & { user: User },
-    @Param('id') id: string,
-  ) {
-    if (!req.user || !req.user.id) {
+  read(@Req() req: Request & { user: User }, @Param('id') id: string) {
+    if (!req.user.id) {
       throw new UnauthorizedException('User not authenticated');
     }
 
@@ -58,8 +56,8 @@ export class NotificationsController {
 
   @SetMetadata('roles', [Role.User, Role.Admin])
   @Patch('read-all')
-  readAll(@Request() req: Express.Request & { user: User }) {
-    if (!req.user || !req.user.id) {
+  readAll(@Req() req: Request & { user: User }) {
+    if (!req.user.id) {
       throw new UnauthorizedException('User not authenticated');
     }
 

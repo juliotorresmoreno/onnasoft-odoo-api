@@ -8,8 +8,8 @@ import {
   Delete,
   Query,
   SetMetadata,
-  Request,
   NotFoundException,
+  Req,
 } from '@nestjs/common';
 import { CompanyService } from './company.service';
 import { CreateCompanyDto } from './dto/create-company.dto';
@@ -20,6 +20,7 @@ import { Role } from '@/types/role';
 import { IS_PUBLIC_KEY, Public } from '@/utils/secure';
 import { User } from '@/entities/User';
 import { UsersService } from '../users/users.service';
+import { Request } from 'express';
 
 @Controller('company')
 export class CompanyController {
@@ -43,12 +44,9 @@ export class CompanyController {
 
   @SetMetadata('roles', [Role.User, Role.Admin, IS_PUBLIC_KEY])
   @Get(':id')
-  async findOne(
-    @Request() req: Express.Request & { user: User },
-    @Param('id') id: string,
-  ) {
+  async findOne(@Req() req: Request & { user: User }, @Param('id') id: string) {
     if (id === 'me') {
-      if (!req.user || !req.user.email) {
+      if (!req.user.email) {
         throw new NotFoundException('User not found');
       }
 
@@ -57,7 +55,7 @@ export class CompanyController {
         select: ['companyId'],
       });
 
-      if (!user || !user.companyId) {
+      if (!user?.companyId) {
         throw new NotFoundException('Company not found for the user');
       }
 
@@ -70,7 +68,7 @@ export class CompanyController {
   @SetMetadata('roles', [Role.User, Role.Admin])
   @Patch(':id')
   async update(
-    @Request() req: Express.Request & { user: User },
+    @Req() req: Request & { user: User },
     @Body() payload: UpdateCompanyDto,
     @Param('id') id: string,
   ) {
@@ -100,14 +98,14 @@ export class CompanyController {
   @Patch('me')
   async updateMe(
     @Body() payload: UpdateCompanyDto,
-    @Request() req: Express.Request & { user: User },
+    @Req() req: Request & { user: User },
   ) {
     const user = await this.userService.findOne({
       where: { id: req.user.id },
       select: ['companyId'],
     });
 
-    if (!user || !user.companyId) {
+    if (!user?.companyId) {
       throw new NotFoundException('Company not found for the user');
     }
 
