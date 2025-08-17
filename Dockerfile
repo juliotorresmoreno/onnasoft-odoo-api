@@ -2,9 +2,8 @@
 FROM node:current-alpine3.22 AS builder
 
 WORKDIR /app
-RUN npm install -g npm
+RUN npm install -g npm@latest @nestjs/cli
 COPY package*.json ./
-RUN npm install -g @nestjs/cli
 RUN npm i --omit=dev
 RUN npm cache clean --force
 
