@@ -41,7 +41,7 @@ export class SeedService implements OnApplicationBootstrap {
       price: (profesionalPlan.unit_amount as number) / 100,
       stripePriceId: config.plans.professional.id,
       period: 'month',
-      storage: 50,
+      storage: 10,
       active: true,
     });
 
@@ -52,7 +52,7 @@ export class SeedService implements OnApplicationBootstrap {
       price: (professionalAnualPlan.unit_amount as number) / 100,
       stripePriceId: config.plans.professional.anualId,
       period: 'year',
-      storage: 50,
+      storage: 10,
       active: true,
     });
 
@@ -63,7 +63,7 @@ export class SeedService implements OnApplicationBootstrap {
       price: (businessPlan.unit_amount as number) / 100,
       stripePriceId: config.plans.business.id,
       period: 'month',
-      storage: 200,
+      storage: 50,
       active: true,
     });
 
@@ -74,7 +74,7 @@ export class SeedService implements OnApplicationBootstrap {
       price: (businessAnualPlan.unit_amount as number) / 100,
       stripePriceId: config.plans.business.anualId,
       period: 'year',
-      storage: 200,
+      storage: 50,
       active: true,
     });
 
@@ -116,7 +116,7 @@ export class SeedService implements OnApplicationBootstrap {
         features: [
           'Essential Odoo Modules (CRM, Sales, Basic Accounting)',
           'Standard Email/Chat Support (Mon-Fri, 9 AM - 5 PM COL)',
-          '50 GB Storage',
+          '10 GB Storage',
           'Online Knowledge Base & Video Tutorials',
           'Self-guided Implementation',
         ],
@@ -130,7 +130,7 @@ export class SeedService implements OnApplicationBootstrap {
         features: [
           'Módulos Esenciales de Odoo (CRM, Ventas, Contabilidad Básica)',
           'Soporte Estándar por Email/Chat (Lun-Vie, 9 AM - 5 PM COL)',
-          '50 GB de Almacenamiento',
+          '10 GB de Almacenamiento',
           'Base de Conocimiento en Línea y Tutoriales en Video',
           'Auto-implementación Guiada',
         ],
@@ -144,7 +144,7 @@ export class SeedService implements OnApplicationBootstrap {
         features: [
           'Essential Odoo Modules (CRM, Sales, Basic Accounting)',
           'Standard Email/Chat Support (Mon-Fri, 9 AM - 5 PM COL)',
-          '50 GB Storage',
+          '10 GB Storage',
           'Online Knowledge Base & Video Tutorials',
           'Self-guided Implementation',
         ],
@@ -158,7 +158,7 @@ export class SeedService implements OnApplicationBootstrap {
         features: [
           'Módulos Esenciales de Odoo (CRM, Ventas, Contabilidad Básica)',
           'Soporte Estándar por Email/Chat (Lun-Vie, 9 AM - 5 PM COL)',
-          '50 GB de Almacenamiento',
+          '10 GB de Almacenamiento',
           'Base de Conocimiento en Línea y Tutoriales en Video',
           'Auto-implementación Guiada',
         ],
@@ -176,7 +176,7 @@ export class SeedService implements OnApplicationBootstrap {
           'Project Management & Timesheets',
           'Basic HR (Employees) & Marketing Automation',
           'Priority Email/Chat Support (Mon-Fri, 8 AM - 6 PM COL)',
-          '200 GB Storage',
+          '50 GB Storage',
           'Exclusive Webinars & Group Q&A Sessions',
           'Assistance with Initial Configuration',
         ],
@@ -193,7 +193,7 @@ export class SeedService implements OnApplicationBootstrap {
           'Gestión de Proyectos y Hojas de Tiempo',
           'RRHH Básico (Empleados) y Automatización de Marketing',
           'Soporte Prioritario por Email/Chat (Lun-Vie, 8 AM - 6 PM COL)',
-          '200 GB de Almacenamiento',
+          '50 GB de Almacenamiento',
           'Webinars Exclusivos y Sesiones Grupales de Preguntas y Respuestas',
           'Asistencia en la Configuración Inicial',
         ],
@@ -210,7 +210,7 @@ export class SeedService implements OnApplicationBootstrap {
           'Project Management & Timesheets',
           'Basic HR (Employees) & Marketing Automation',
           'Priority Email/Chat Support (Mon-Fri, 8 AM - 6 PM COL)',
-          '200 GB Storage',
+          '50 GB Storage',
           'Exclusive Webinars & Group Q&A Sessions',
           'Assistance with Initial Configuration',
         ],
@@ -227,7 +227,7 @@ export class SeedService implements OnApplicationBootstrap {
           'Gestión de Proyectos y Hojas de Tiempo',
           'RRHH Básico (Empleados) y Automatización de Marketing',
           'Soporte Prioritario por Email/Chat (Lun-Vie, 8 AM - 6 PM COL)',
-          '200 GB de Almacenamiento',
+          '50 GB de Almacenamiento',
           'Webinars Exclusivos y Sesiones Grupales de Preguntas y Respuestas',
           'Asistencia en la Configuración Inicial',
         ],
