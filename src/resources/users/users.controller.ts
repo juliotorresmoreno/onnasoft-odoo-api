@@ -46,7 +46,7 @@ export class UsersController {
   @ApiResponse({ status: 200, description: 'List of users', type: [User] })
   @Get()
   async findAll(@Query() query: QueryParams<User>) {
-    const options = buildFindManyOptions(query);
+    const options = buildFindManyOptions<User>(query);
     return this.usersService.findAll(options);
   }
 

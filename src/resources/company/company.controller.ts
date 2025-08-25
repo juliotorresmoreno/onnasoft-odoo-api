@@ -38,7 +38,7 @@ export class CompanyController {
   @Public()
   @Get()
   async findAll(@Query() query: QueryParams<Company>) {
-    const options = buildFindManyOptions(query);
+    const options = buildFindManyOptions<Company>(query);
     return this.companyService.findAll(options);
   }
 

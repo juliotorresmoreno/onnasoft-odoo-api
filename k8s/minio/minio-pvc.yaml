@@ -11,7 +11,7 @@ spec:
   persistentVolumeReclaimPolicy: Retain
   storageClassName: local-storage
   local:
-    path: /data/minio-odoo-onnasoft
+    path: /data/minio-onnasoft
   nodeAffinity:
     required:
       nodeSelectorTerms:

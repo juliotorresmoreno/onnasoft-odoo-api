@@ -121,13 +121,11 @@ function handleSelectKey(
 ) {
   const field = key.slice(7, -1);
 
-  if (!options.select) {
-    options.select = {
-      id: true,
-      createdAt: true,
-      updatedAt: true,
-    };
-  }
+  options.select ??= {
+    id: true,
+    createdAt: true,
+    updatedAt: true,
+  };
 
   const path = field.split('.');
   const lastField = path.pop();
@@ -143,9 +141,14 @@ function handleSelectKey(
   baseField[lastField] = value === 'true' || value === true;
 }
 
-export function buildFindManyOptions<T>(
-  query: Record<string, any>,
-): FindManyOptions<T> {
+export function buildFindManyOptions<
+  T extends {
+    id: string;
+    translations?: { locale: string }[];
+    createdAt: Date;
+    updatedAt: Date;
+  },
+>(query: Record<string, any>): FindManyOptions<T> {
   const options: FindManyOptions<T> = {};
   const where: Record<string, any> = {};
 
@@ -195,6 +198,12 @@ export function buildFindManyOptions<T>(
 
   if (query.page !== undefined) {
     options.skip = (Number(query.page) - 1) * options.take;
+  }
+
+  if (!query.order) {
+    options.order = {
+      createdAt: 'DESC',
+    } as FindOptionsOrder<T>;
   }
 
   return options;

@@ -50,8 +50,6 @@ export class OdooService {
       payload['country_code'] = countryCode;
     }
 
-    console.log('Creating database with payload:', payload);
-
     const response = await fetch(url.toString(), {
       method: 'POST',
       headers: {
@@ -67,8 +65,6 @@ export class OdooService {
     const result = (await response.json().catch(() => ({
       message: '',
     }))) as CreateDatabaseResponse;
-
-    console.log('Create database response:', result);
 
     if (!response.ok) {
       throw new Error(result.message || response.statusText);
@@ -96,7 +92,7 @@ export class OdooService {
     });
 
     if (!response.ok) {
-      console.log(payload);
+      console.log(await response.text());
       throw new Error(`Failed to create backup: ${response.statusText}`);
     }
 

@@ -29,7 +29,7 @@ export class PlansController {
   @Public()
   @Get()
   async findAll(@Query() query: QueryParams<Plan>) {
-    const options = buildFindManyOptions(query);
+    const options = buildFindManyOptions<Plan>(query);
     return this.plansService.findAll(options);
   }
 
