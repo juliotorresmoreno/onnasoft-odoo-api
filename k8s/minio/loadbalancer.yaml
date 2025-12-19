@@ -9,8 +9,8 @@ spec:
     app: minio
   ports:
     - name: service
-      port: 9000
+      port: 19000
       targetPort: 9000
     - name: console
-      port: 9001
+      port: 19001
       targetPort: 9001
